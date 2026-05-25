@@ -41,6 +41,15 @@ test("admin can update a rule's verification", async ({ request }) => {
   expect(body.rule.lastVerifiedAt).toBe("2026-05-25");
 });
 
+test("admin can update a carrier's verification", async ({ request }) => {
+  const res = await request.patch("/api/admin/carriers/frisco-soft", {
+    data: { verification: "verified", verifiedAt: "2026-05-25", heightCm: 28 },
+  });
+  expect(res.ok()).toBeTruthy();
+  const body = await res.json();
+  expect(body.carrier.verification).toBe("verified");
+});
+
 test("merchant demo embeds a working widget", async ({ page }) => {
   await page.goto("/merchant/petgearco");
   await expect(page.getByText(/Merchant demo/i)).toBeVisible();

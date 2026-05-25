@@ -31,6 +31,28 @@ describe("repository updateRule (static)", () => {
     expect(await getRepository().updateRule("nope", { notes: "x" })).toBeNull();
   });
 
+  it("patches an existing carrier and reflects it on read", async () => {
+    const repo = getRepository();
+    const updated = await repo.updateCarrier("frisco-soft", {
+      heightCm: 26,
+      verification: "verified",
+      verifiedAt: "2026-05-25",
+    });
+    expect(updated?.heightCm).toBe(26);
+    expect(updated?.verification).toBe("verified");
+
+    const reread = await repo.getCarrier("frisco-soft");
+    expect(reread?.heightCm).toBe(26);
+    expect(reread?.verifiedAt).toBe("2026-05-25");
+
+    // restore
+    await repo.updateCarrier("frisco-soft", { heightCm: 28, verification: "verified", verifiedAt: "2026-03-15" });
+  });
+
+  it("returns null for an unknown carrier id", async () => {
+    expect(await getRepository().updateCarrier("nope", { heightCm: 10 })).toBeNull();
+  });
+
   it("carries source fields through the rule snapshot list", async () => {
     const rules = await getRepository().listRules();
     const ac = rules.find((r) => r.id === "air-canada-economy");

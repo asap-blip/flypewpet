@@ -63,3 +63,25 @@ export const ruleUpdateSchema = z
   .partial();
 
 export type RuleUpdateParsed = z.infer<typeof ruleUpdateSchema>;
+
+export const verificationSchema = z.enum(["verified", "unverified", "community"]);
+
+// Editable fields for the admin carrier-update workflow (PATCH-style).
+export const carrierUpdateSchema = z
+  .object({
+    lengthCm: z.number().positive().max(200),
+    widthCm: z.number().positive().max(200),
+    heightCm: z.number().positive().max(200),
+    weightKg: z.number().positive().max(50),
+    maxPetWeightKg: z.number().positive().max(100).nullable(),
+    softSided: z.boolean(),
+    verification: verificationSchema,
+    verifiedAt: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+      .nullable(),
+    affiliateUrl: z.string().url().max(500).nullable(),
+  })
+  .partial();
+
+export type CarrierUpdateParsed = z.infer<typeof carrierUpdateSchema>;

@@ -1,6 +1,6 @@
 import { getRepository, dataSourceLabel } from "@/lib/data/repository";
 import { RuleEditor } from "@/components/RuleEditor";
-import { FreshnessBadge } from "@/components/SourceCitation";
+import { CarrierEditor } from "@/components/CarrierEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -35,35 +35,12 @@ export default async function AdminPage() {
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Carriers ({carriers.length})</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="py-2 pr-4">Brand / model</th>
-                <th className="py-2 pr-4">SKU</th>
-                <th className="py-2 pr-4">L×W×H (cm)</th>
-                <th className="py-2 pr-4">Type</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2 pr-4">Freshness</th>
-                <th className="py-2">Affiliate</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {carriers.map((c) => (
-                <tr key={c.id}>
-                  <td className="py-2 pr-4 font-medium text-slate-800">{c.brand} {c.model}</td>
-                  <td className="py-2 pr-4 font-mono text-xs">{c.sku}</td>
-                  <td className="py-2 pr-4">{c.lengthCm}×{c.widthCm}×{c.heightCm}</td>
-                  <td className="py-2 pr-4">{c.softSided ? "soft" : "hard"}</td>
-                  <td className="py-2 pr-4">{c.verification}</td>
-                  <td className="py-2 pr-4"><FreshnessBadge lastVerifiedAt={c.verifiedAt} /></td>
-                  <td className="py-2">{c.affiliateUrl ? "set" : "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <h2 className="mb-1 text-lg font-semibold text-slate-900">Carriers ({carriers.length})</h2>
+        <p className="mb-4 text-sm text-slate-500">
+          Edit dimensions, weight, soft-sided flag, verification status, the affiliate URL, and the
+          verification date. Use “Today” after you re-measure or re-confirm a bag.
+        </p>
+        <CarrierEditor carriers={carriers} />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5">

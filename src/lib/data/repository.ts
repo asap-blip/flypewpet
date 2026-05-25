@@ -41,6 +41,7 @@ export interface ClickRecord {
 export interface Repository {
   listCarriers(query?: string): Promise<Carrier[]>;
   getCarrier(id: string): Promise<Carrier | null>;
+  updateCarrier(id: string, patch: Partial<Carrier>): Promise<Carrier | null>;
   resolveCode(code: string): Promise<Carrier | null>;
   listAirlines(): Promise<Airline[]>;
   getAirline(id: string): Promise<Airline | null>;
@@ -102,6 +103,14 @@ class StaticRepository implements Repository {
   }
   async getCarrier(id: string): Promise<Carrier | null> {
     return seedCarriers.find((c) => c.id === id) ?? null;
+  }
+  async updateCarrier(id: string, patch: Partial<Carrier>): Promise<Carrier | null> {
+    const carrier = seedCarriers.find((c) => c.id === id);
+    if (!carrier) return null;
+    // Mutates the in-memory seed (server-session lifetime only). Configure
+    // Supabase for durable edits.
+    Object.assign(carrier, patch);
+    return carrier;
   }
   async resolveCode(code: string): Promise<Carrier | null> {
     const normalized = code.trim().toUpperCase();
@@ -220,6 +229,23 @@ class SupabaseRepository implements Repository {
     const sb = getSupabase();
     if (!sb) return null;
     const { data } = await sb.from("carriers").select("*").eq("id", id).maybeSingle();
+    return data ? carrierFromRow(data) : null;
+  }
+  async updateCarrier(id: string, patch: Partial<Carrier>): Promise<Carrier | null> {
+    const sb = getServiceSupabase() ?? getSupabase();
+    if (!sb) return null;
+    const row: Record<string, unknown> = {};
+    if (patch.lengthCm !== undefined) row.length_cm = patch.lengthCm;
+    if (patch.widthCm !== undefined) row.width_cm = patch.widthCm;
+    if (patch.heightCm !== undefined) row.height_cm = patch.heightCm;
+    if (patch.weightKg !== undefined) row.weight_kg = patch.weightKg;
+    if (patch.maxPetWeightKg !== undefined) row.max_pet_weight_kg = patch.maxPetWeightKg;
+    if (patch.softSided !== undefined) row.soft_sided = patch.softSided;
+    if (patch.verification !== undefined) row.verification = patch.verification;
+    if (patch.verifiedAt !== undefined) row.verified_at = patch.verifiedAt;
+    if (patch.affiliateUrl !== undefined) row.affiliate_url = patch.affiliateUrl;
+    const { data, error } = await sb.from("carriers").update(row).eq("id", id).select("*").maybeSingle();
+    if (error) throw error;
     return data ? carrierFromRow(data) : null;
   }
   async resolveCode(code: string): Promise<Carrier | null> {

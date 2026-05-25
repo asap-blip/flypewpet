@@ -4,6 +4,7 @@ import { DimensionTable } from "./DimensionTable";
 import { ReasonList } from "./ReasonList";
 import { AlternativesPanel } from "./AlternativesPanel";
 import { ShareLink } from "./ShareLink";
+import { SourceCitation } from "./SourceCitation";
 import { confidenceLabel, verdictHeadline } from "@/lib/ui";
 
 export function ResultView({
@@ -68,15 +69,27 @@ export function ResultView({
               </div>
             </div>
 
-            {leg.ruleSnapshot?.sourceUrl && (
-              <div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-400">
-                Rule source:{" "}
-                <a href={leg.ruleSnapshot.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline">
-                  {new URL(leg.ruleSnapshot.sourceUrl).hostname}
-                </a>
-                {leg.ruleSnapshot.lastVerifiedAt && <> · last verified {leg.ruleSnapshot.lastVerifiedAt}</>}
-              </div>
-            )}
+            <div className="mt-4 border-t border-slate-100 pt-3">
+              {leg.ruleSnapshot ? (
+                <>
+                  <SourceCitation
+                    sourceUrl={leg.ruleSnapshot.sourceUrl}
+                    sourceLabel={leg.ruleSnapshot.sourceLabel}
+                    sourceType={leg.ruleSnapshot.sourceType}
+                    lastVerifiedAt={leg.ruleSnapshot.lastVerifiedAt}
+                    compact
+                  />
+                  {leg.ruleSnapshot.notes && (
+                    <p className="mt-1 text-xs text-slate-400">{leg.ruleSnapshot.notes}</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-slate-400">
+                  No published rule was found for this airline/cabin, so this verdict is based on
+                  incomplete data.
+                </p>
+              )}
+            </div>
           </section>
         ))}
       </div>

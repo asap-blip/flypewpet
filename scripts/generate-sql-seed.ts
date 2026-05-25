@@ -44,16 +44,16 @@ for (const a of airlines) {
 lines.push("", "-- carriers");
 for (const c of carriers) {
   lines.push(
-    `insert into public.carriers (id, brand, model, sku, soft_sided, length_cm, width_cm, height_cm, weight_kg, max_pet_weight_kg, verification, image_url, affiliate_url, affiliate_targets, price_usd, description) values (` +
-      `${s(c.id)}, ${s(c.brand)}, ${s(c.model)}, ${s(c.sku)}, ${b(c.softSided)}, ${n(c.lengthCm)}, ${n(c.widthCm)}, ${n(c.heightCm)}, ${n(c.weightKg)}, ${n(c.maxPetWeightKg)}, ${s(c.verification)}, ${s(c.imageUrl)}, ${s(c.affiliateUrl)}, ${j(c.affiliateTargets ?? {})}, ${n(c.priceUsd)}, ${s(c.description)}) on conflict (id) do nothing;`,
+    `insert into public.carriers (id, brand, model, sku, soft_sided, length_cm, width_cm, height_cm, weight_kg, max_pet_weight_kg, verification, verified_at, image_url, affiliate_url, affiliate_targets, price_usd, description) values (` +
+      `${s(c.id)}, ${s(c.brand)}, ${s(c.model)}, ${s(c.sku)}, ${b(c.softSided)}, ${n(c.lengthCm)}, ${n(c.widthCm)}, ${n(c.heightCm)}, ${n(c.weightKg)}, ${n(c.maxPetWeightKg)}, ${s(c.verification)}, ${s(c.verifiedAt)}, ${s(c.imageUrl)}, ${s(c.affiliateUrl)}, ${j(c.affiliateTargets ?? {})}, ${n(c.priceUsd)}, ${s(c.description)}) on conflict (id) do nothing;`,
   );
 }
 
 lines.push("", "-- airline_rules");
 for (const r of airlineRules) {
   lines.push(
-    `insert into public.airline_rules (id, airline_id, cabin, aircraft_type, max_length_cm, max_width_cm, max_height_cm, max_combined_weight_kg, soft_sided_requirement, aircraft_varies, notes, source_url, last_verified_at) values (` +
-      `${s(r.id)}, ${s(r.airlineId)}, ${s(r.cabin)}, ${s(r.aircraftType)}, ${n(r.maxLengthCm)}, ${n(r.maxWidthCm)}, ${n(r.maxHeightCm)}, ${n(r.maxCombinedWeightKg)}, ${s(r.softSidedRequirement)}, ${b(r.aircraftVaries)}, ${s(r.notes)}, ${s(r.sourceUrl)}, ${s(r.lastVerifiedAt)}) on conflict (id) do nothing;`,
+    `insert into public.airline_rules (id, airline_id, cabin, aircraft_type, max_length_cm, max_width_cm, max_height_cm, max_combined_weight_kg, soft_sided_requirement, aircraft_varies, notes, source_url, source_label, source_type, last_verified_at) values (` +
+      `${s(r.id)}, ${s(r.airlineId)}, ${s(r.cabin)}, ${s(r.aircraftType)}, ${n(r.maxLengthCm)}, ${n(r.maxWidthCm)}, ${n(r.maxHeightCm)}, ${n(r.maxCombinedWeightKg)}, ${s(r.softSidedRequirement)}, ${b(r.aircraftVaries)}, ${s(r.notes)}, ${s(r.sourceUrl)}, ${s(r.sourceLabel)}, ${s(r.sourceType)}, ${s(r.lastVerifiedAt)}) on conflict (id) do nothing;`,
   );
 }
 

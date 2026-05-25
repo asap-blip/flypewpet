@@ -33,3 +33,33 @@ export const checkInputSchema = z.object({
 });
 
 export type CheckInputParsed = z.infer<typeof checkInputSchema>;
+
+export const sourceTypeSchema = z.enum([
+  "airline_official",
+  "airline_pdf",
+  "third_party",
+  "community",
+]);
+
+// Editable fields for the admin rule-update workflow. All optional (PATCH-style).
+// `nullable` fields accept null to clear a value.
+export const ruleUpdateSchema = z
+  .object({
+    maxLengthCm: z.number().positive().max(200).nullable(),
+    maxWidthCm: z.number().positive().max(200).nullable(),
+    maxHeightCm: z.number().positive().max(200).nullable(),
+    maxCombinedWeightKg: z.number().positive().max(100).nullable(),
+    softSidedRequirement: z.enum(["required", "recommended"]).nullable(),
+    aircraftVaries: z.boolean(),
+    notes: z.string().max(500).nullable(),
+    sourceUrl: z.string().url().max(500).nullable(),
+    sourceLabel: z.string().max(200).nullable(),
+    sourceType: sourceTypeSchema.nullable(),
+    lastVerifiedAt: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+      .nullable(),
+  })
+  .partial();
+
+export type RuleUpdateParsed = z.infer<typeof ruleUpdateSchema>;

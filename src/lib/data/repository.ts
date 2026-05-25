@@ -49,6 +49,9 @@ export interface Repository {
     cabin: CabinType,
     aircraftType?: string | null,
   ): Promise<AirlineRule | null>;
+  listRules(): Promise<AirlineRule[]>;
+  getRuleById(id: string): Promise<AirlineRule | null>;
+  updateRule(id: string, patch: Partial<AirlineRule>): Promise<AirlineRule | null>;
   listMerchants(): Promise<Merchant[]>;
   getMerchantBySlug(slug: string): Promise<Merchant | null>;
   listMerchantProducts(merchantId: string): Promise<MerchantProduct[]>;
@@ -123,6 +126,20 @@ class StaticRepository implements Repository {
   ): Promise<AirlineRule | null> {
     return pickRule(airlineId, cabin, aircraftType, airlineRules);
   }
+  async listRules(): Promise<AirlineRule[]> {
+    return airlineRules;
+  }
+  async getRuleById(id: string): Promise<AirlineRule | null> {
+    return airlineRules.find((r) => r.id === id) ?? null;
+  }
+  async updateRule(id: string, patch: Partial<AirlineRule>): Promise<AirlineRule | null> {
+    const rule = airlineRules.find((r) => r.id === id);
+    if (!rule) return null;
+    // Mutates the in-memory seed. Persists for the server process lifetime only;
+    // restart resets to seed. Configure Supabase for durable edits.
+    Object.assign(rule, patch);
+    return rule;
+  }
   async listMerchants(): Promise<Merchant[]> {
     return seedMerchants;
   }
@@ -159,6 +176,7 @@ function carrierFromRow(r: Record<string, unknown>): Carrier {
     weightKg: Number(r.weight_kg),
     maxPetWeightKg: r.max_pet_weight_kg == null ? null : Number(r.max_pet_weight_kg),
     verification: (r.verification as Carrier["verification"]) ?? "unverified",
+    verifiedAt: (r.verified_at as string) ?? null,
     imageUrl: (r.image_url as string) ?? null,
     affiliateUrl: (r.affiliate_url as string) ?? null,
     affiliateTargets: (r.affiliate_targets as Record<string, string>) ?? {},
@@ -182,6 +200,8 @@ function ruleFromRow(r: Record<string, unknown>): AirlineRule {
     aircraftVaries: Boolean(r.aircraft_varies),
     notes: (r.notes as string) ?? null,
     sourceUrl: (r.source_url as string) ?? null,
+    sourceLabel: (r.source_label as string) ?? null,
+    sourceType: (r.source_type as AirlineRule["sourceType"]) ?? null,
     lastVerifiedAt: (r.last_verified_at as string) ?? null,
   };
 }
@@ -247,6 +267,37 @@ class SupabaseRepository implements Repository {
     if (!sb) return null;
     const { data } = await sb.from("airline_rules").select("*").eq("airline_id", airlineId);
     return pickRule(airlineId, cabin, aircraftType, (data ?? []).map(ruleFromRow));
+  }
+  async listRules(): Promise<AirlineRule[]> {
+    const sb = getSupabase();
+    if (!sb) return [];
+    const { data } = await sb.from("airline_rules").select("*");
+    return (data ?? []).map(ruleFromRow);
+  }
+  async getRuleById(id: string): Promise<AirlineRule | null> {
+    const sb = getSupabase();
+    if (!sb) return null;
+    const { data } = await sb.from("airline_rules").select("*").eq("id", id).maybeSingle();
+    return data ? ruleFromRow(data) : null;
+  }
+  async updateRule(id: string, patch: Partial<AirlineRule>): Promise<AirlineRule | null> {
+    const sb = getServiceSupabase() ?? getSupabase();
+    if (!sb) return null;
+    const row: Record<string, unknown> = {};
+    if (patch.maxLengthCm !== undefined) row.max_length_cm = patch.maxLengthCm;
+    if (patch.maxWidthCm !== undefined) row.max_width_cm = patch.maxWidthCm;
+    if (patch.maxHeightCm !== undefined) row.max_height_cm = patch.maxHeightCm;
+    if (patch.maxCombinedWeightKg !== undefined) row.max_combined_weight_kg = patch.maxCombinedWeightKg;
+    if (patch.softSidedRequirement !== undefined) row.soft_sided_requirement = patch.softSidedRequirement;
+    if (patch.aircraftVaries !== undefined) row.aircraft_varies = patch.aircraftVaries;
+    if (patch.notes !== undefined) row.notes = patch.notes;
+    if (patch.sourceUrl !== undefined) row.source_url = patch.sourceUrl;
+    if (patch.sourceLabel !== undefined) row.source_label = patch.sourceLabel;
+    if (patch.sourceType !== undefined) row.source_type = patch.sourceType;
+    if (patch.lastVerifiedAt !== undefined) row.last_verified_at = patch.lastVerifiedAt;
+    const { data, error } = await sb.from("airline_rules").update(row).eq("id", id).select("*").maybeSingle();
+    if (error) throw error;
+    return data ? ruleFromRow(data) : null;
   }
   async listMerchants(): Promise<Merchant[]> {
     const sb = getSupabase();

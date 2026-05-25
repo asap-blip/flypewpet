@@ -28,7 +28,10 @@ export interface RuleSnapshot {
   maxCombinedWeightKg: number | null;
   softSidedRequirement: AirlineRule["softSidedRequirement"];
   sourceUrl: string | null;
+  sourceLabel: string | null;
+  sourceType: AirlineRule["sourceType"];
   lastVerifiedAt: string | null;
+  notes: string | null;
 }
 
 export interface LegResult {
@@ -135,7 +138,10 @@ export function evaluateLeg(
         maxCombinedWeightKg: rule.maxCombinedWeightKg,
         softSidedRequirement: rule.softSidedRequirement,
         sourceUrl: rule.sourceUrl ?? null,
+        sourceLabel: rule.sourceLabel ?? null,
+        sourceType: rule.sourceType ?? null,
         lastVerifiedAt: rule.lastVerifiedAt ?? null,
+        notes: rule.notes ?? null,
       }
     : null;
 

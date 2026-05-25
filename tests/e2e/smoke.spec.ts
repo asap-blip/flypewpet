@@ -25,6 +25,22 @@ test("a full check produces a result with a verdict", async ({ page }) => {
   await expect(page.getByText(/PASS|BORDERLINE|NO/).first()).toBeVisible();
 });
 
+test("rules directory shows sources and freshness", async ({ page }) => {
+  await page.goto("/rules");
+  await expect(page.getByRole("heading", { name: /Airline rules & sources/i })).toBeVisible();
+  await expect(page.getByText("Air Canada — Travelling with pets").first()).toBeVisible();
+  await expect(page.getByText(/Airline official/).first()).toBeVisible();
+});
+
+test("admin can update a rule's verification", async ({ request }) => {
+  const res = await request.patch("/api/admin/rules/southwest-economy", {
+    data: { lastVerifiedAt: "2026-05-25", sourceType: "third_party" },
+  });
+  expect(res.ok()).toBeTruthy();
+  const body = await res.json();
+  expect(body.rule.lastVerifiedAt).toBe("2026-05-25");
+});
+
 test("merchant demo embeds a working widget", async ({ page }) => {
   await page.goto("/merchant/petgearco");
   await expect(page.getByText(/Merchant demo/i)).toBeVisible();

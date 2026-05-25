@@ -83,8 +83,9 @@ to untagged outbound links when they are absent.
 | `/carriers` | Searchable carrier catalog + QR/code lookup |
 | `/check` | Trip builder (carrier + pet + 1..n flight legs) |
 | `/result?d=<token>` | Shareable result — recomputed from the itinerary encoded in the link |
+| `/rules` | **Rules & sources directory** — every airline rule with its official source URL, source label, source type, last-verified date, freshness, and notes |
 | `/merchant/[slug]` | Merchant demo with the embeddable `CheckWidget` |
-| `/admin` | Dev data view (carriers, airline rules, merchants, data source) |
+| `/admin` | Data view + **editable rule workflow** (update dimensions, weight, soft-sided requirement, source, and verification date) |
 
 ## API
 
@@ -93,6 +94,7 @@ to untagged outbound links when they are absent.
 | `POST /api/check` | Core contract: `CheckInput → CheckResponse` (+ `shareToken`). Used by the result page and the future embed widget. |
 | `GET /api/resolve?code=` | Resolve a QR/SKU/product code to a carrier |
 | `GET /api/click?carrier=&network=&check=` | Records an outbound affiliate click, then 302-redirects to the destination |
+| `PATCH /api/admin/rules/[id]` | Admin rule update (dimensions, weight, soft-sided, source fields, verified date). Guarded by `ADMIN_TOKEN` when set. |
 
 `CheckResponse` (see `src/lib/check/service.ts`) is the stable, API-ready
 result contract:
@@ -130,6 +132,26 @@ Reason codes are structured (e.g. `DIMENSION_HEIGHT_EXCEEDED`,
 `SOFT_SIDED_REQUIRED`, `AIRCRAFT_DATA_MISSING`, `PET_COMFORT_UNCERTAIN`,
 `FINAL_APPROVAL_AIRLINE_DISCRETION`) — see `src/lib/rules/reasonCodes.ts`.
 
+## Rules & Sources (transparency layer)
+
+Trust is the product, so every number is traceable:
+
+- **`airline_rules`** carry `source_url`, `source_label`, `source_type`
+  (`airline_official` / `airline_pdf` / `third_party` / `community`), `notes`,
+  and `last_verified_at`.
+- **`/rules`** is a public directory of every rule with its source and a
+  **freshness badge** (`fresh` < 120d, `aging` < 270d, `stale` beyond, `unknown`
+  if never verified — see `src/lib/freshness.ts`).
+- The **results page cites the exact rule source** used for each leg's verdict
+  (label, type, link, freshness) plus the rule notes, via `RuleSnapshot`.
+- **Carriers** carry `verified_at` so the catalog and admin show dimension
+  freshness alongside verification status.
+- **Admin rule workflow** (`/admin`): edit any rule's dimensions, weight,
+  soft-sided requirement, source fields, and verification date, then Save.
+  Writes go through `PATCH /api/admin/rules/[id]` (Zod-validated, `ADMIN_TOKEN`-
+  guarded). With Supabase configured they persist to Postgres; on the static
+  layer they apply to the in-memory seed for the server session (documented).
+
 ## Monetization
 
 **Affiliate (day 1).** When a result is `NO`/`BORDERLINE`, the result page shows
@@ -147,10 +169,12 @@ accounts/subscriptions slot in cleanly later.
 
 ## Data model
 
-Schema in `supabase/migrations/0001_init.sql`: `users`, `pets`, `carriers`,
-`airlines`, `airline_rules`, `trips`, `trip_legs`, `compatibility_checks`,
-`merchants`, `merchant_products`, `affiliate_targets`, `outbound_clicks`,
-`product_codes`. Dimensions are centimetres, weights kilograms.
+Schema in `supabase/migrations/`: `0001_init.sql` defines `users`, `pets`,
+`carriers`, `airlines`, `airline_rules`, `trips`, `trip_legs`,
+`compatibility_checks`, `merchants`, `merchant_products`, `affiliate_targets`,
+`outbound_clicks`, `product_codes`. `0002_rule_sources.sql` adds source tracking
+(`airline_rules.source_label`, `source_type`) and verification freshness
+(`carriers.verified_at`). Dimensions are centimetres, weights kilograms.
 
 ## Seed data
 

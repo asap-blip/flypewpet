@@ -9,6 +9,20 @@ export type SoftSidedRequirement = "required" | "recommended" | null;
 
 export type VerificationStatus = "verified" | "unverified" | "community";
 
+// Where a rule's numbers came from, so users can judge how much to trust them.
+export type SourceType =
+  | "airline_official" // the airline's own website/help center
+  | "airline_pdf" // a downloadable airline policy document
+  | "third_party" // an aggregator or travel publication
+  | "community"; // user-reported, not yet confirmed against an official source
+
+export const SOURCE_TYPE_LABELS: Record<SourceType, string> = {
+  airline_official: "Airline official",
+  airline_pdf: "Airline PDF",
+  third_party: "Third party",
+  community: "Community-reported",
+};
+
 export interface Carrier {
   id: string;
   brand: string;
@@ -24,6 +38,8 @@ export interface Carrier {
   // Manufacturer-stated max pet weight, if published (kg). Optional.
   maxPetWeightKg?: number | null;
   verification: VerificationStatus;
+  // When the carrier's dimensions were last confirmed (drives freshness).
+  verifiedAt?: string | null;
   imageUrl?: string | null;
   // Affiliate URL(s). The primary is used for outbound buttons; the map allows
   // per-network overrides that can be swapped by an admin later.
@@ -58,6 +74,9 @@ export interface AirlineRule {
   aircraftVaries: boolean;
   notes?: string | null;
   sourceUrl?: string | null;
+  // Human-readable name of the source page/document.
+  sourceLabel?: string | null;
+  sourceType?: SourceType | null;
   lastVerifiedAt?: string | null;
 }
 

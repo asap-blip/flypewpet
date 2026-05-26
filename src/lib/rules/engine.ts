@@ -36,17 +36,37 @@ export interface RuleSnapshot {
 
 export interface LegResult {
   legIndex: number;
+  // Airline actually used for rule evaluation (operating carrier when overridden).
   airlineId: string;
   airlineName: string;
+  // The airline the traveler selected for the leg (booking/marketing airline).
+  bookingAirlineId: string;
+  bookingAirlineName: string;
   origin: string;
   destination: string;
   cabin: string;
+  // True when the operating carrier replaced the booking airline for evaluation.
+  operatingOverride: boolean;
+  // True when this leg may be operated by a partner (codeshare).
+  codeshare: boolean;
+  // True when the requested cabin had its own modeled rule; false => economy fallback.
+  cabinModeled: boolean;
   verdict: Verdict;
   confidence: ConfidenceBand;
   reasons: Reason[];
   ruleSnapshot: RuleSnapshot | null;
   // Per-dimension comparison for the results table (cm).
   comparison: DimensionComparison[];
+}
+
+export interface LegMeta {
+  // Airline used for evaluation (resolved: operating > marketed > booking).
+  evalAirline: Airline;
+  // Airline the traveler selected (booking/marketing).
+  bookingAirline: Airline;
+  operatingOverride: boolean;
+  codeshare: boolean;
+  cabinModeled: boolean;
 }
 
 export interface DimensionComparison {
@@ -122,9 +142,30 @@ export function evaluateLeg(
   airline: Airline,
   rule: AirlineRule | null,
   legIndex: number,
+  meta?: LegMeta,
 ): LegResult {
   const reasons: Reason[] = [];
   const comparison: DimensionComparison[] = [];
+
+  // Resolve leg metadata; default to no override / no codeshare so callers that
+  // pass only the evaluation airline (e.g. unit tests) still work.
+  const bookingAirline = meta?.bookingAirline ?? airline;
+  const operatingOverride = meta?.operatingOverride ?? false;
+  const codeshare = meta?.codeshare ?? false;
+  const cabinModeled = meta?.cabinModeled ?? (rule ? rule.cabin === leg.cabin : false);
+
+  // Advisory reasons that never change the verdict but must be visible.
+  if (operatingOverride) reasons.push(reason("OPERATING_CARRIER_USED", "info"));
+  if (codeshare) reasons.push(reason("CODESHARE_PARTNER_OPERATED", "info"));
+  if (!cabinModeled && rule) reasons.push(reason("CABIN_NOT_MODELED", "info"));
+
+  const legFlags = {
+    bookingAirlineId: bookingAirline.id,
+    bookingAirlineName: bookingAirline.name,
+    operatingOverride,
+    codeshare,
+    cabinModeled,
+  };
 
   const ruleSnapshot: RuleSnapshot | null = rule
     ? {
@@ -153,6 +194,7 @@ export function evaluateLeg(
       legIndex,
       airlineId: airline.id,
       airlineName: airline.name,
+      ...legFlags,
       origin: leg.origin,
       destination: leg.destination,
       cabin: leg.cabin,
@@ -295,6 +337,7 @@ export function evaluateLeg(
     legIndex,
     airlineId: airline.id,
     airlineName: airline.name,
+    ...legFlags,
     origin: leg.origin,
     destination: leg.destination,
     cabin: leg.cabin,
@@ -320,8 +363,10 @@ function overallConfidence(legs: LegResult[]): ConfidenceBand {
 
 export interface LegContext {
   leg: TripLegInput;
+  // Airline used for evaluation (operating carrier when overridden).
   airline: Airline;
   rule: AirlineRule | null;
+  meta?: LegMeta;
 }
 
 export function evaluateTrip(
@@ -330,7 +375,7 @@ export function evaluateTrip(
   legs: LegContext[],
 ): TripResult {
   const legResults = legs.map((ctx, i) =>
-    evaluateLeg(carrier, pet, ctx.leg, ctx.airline, ctx.rule, i),
+    evaluateLeg(carrier, pet, ctx.leg, ctx.airline, ctx.rule, i, ctx.meta),
   );
   return {
     overall: overallVerdict(legResults),

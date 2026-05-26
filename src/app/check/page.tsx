@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckForm } from "@/components/CheckForm";
 import { getRepository } from "@/lib/data/repository";
+import { buildCoverageMap } from "@/lib/coverage";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,12 @@ export default async function CheckPage({
 }) {
   const { carrier } = await searchParams;
   const repo = getRepository();
-  const [airlines, carriers] = await Promise.all([
+  const [airlines, carriers, rules] = await Promise.all([
     repo.listAirlines(),
     repo.listCarriers(),
+    repo.listRules(),
   ]);
+  const coverage = buildCoverageMap(airlines, rules);
 
   return (
     <div className="space-y-6">
@@ -29,7 +32,7 @@ export default async function CheckPage({
           <Link href="/rules" className="text-brand-700 underline">See the supported-airlines list</Link>.
         </p>
       </div>
-      <CheckForm airlines={airlines} carriers={carriers} initialCarrierId={carrier} />
+      <CheckForm airlines={airlines} carriers={carriers} coverage={coverage} initialCarrierId={carrier} />
     </div>
   );
 }

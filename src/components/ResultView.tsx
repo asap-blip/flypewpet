@@ -16,7 +16,8 @@ export function ResultView({
   shareToken?: string;
   showShare?: boolean;
 }) {
-  const { carrier, result, alternatives } = response;
+  const { carrier, result, alternatives, warnings } = response;
+  const multiLeg = result.legs.length > 1;
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -24,7 +25,15 @@ export function ResultView({
           <div>
             <div className="text-sm font-medium text-slate-500">{carrier.brand}</div>
             <h1 className="text-2xl font-semibold text-slate-900">{carrier.model}</h1>
-            <p className="mt-1 text-slate-600">{verdictHeadline(result.overall)}</p>
+            <p className="mt-1 text-slate-600">
+              {multiLeg ? "Overall itinerary verdict — " : ""}
+              {verdictHeadline(result.overall)}
+            </p>
+            {multiLeg && (
+              <p className="mt-1 text-xs text-slate-400">
+                Overall reflects the worst leg across {result.legs.length} legs.
+              </p>
+            )}
           </div>
           <div className="flex flex-col items-end gap-2">
             <VerdictBadge verdict={result.overall} size="lg" />
@@ -39,6 +48,19 @@ export function ResultView({
         )}
       </section>
 
+      {warnings.length > 0 && (
+        <section className="space-y-2">
+          {warnings.map((w) => (
+            <div
+              key={w.code}
+              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+            >
+              {w.message}
+            </div>
+          ))}
+        </section>
+      )}
+
       <div className="space-y-4">
         {result.legs.map((leg) => (
           <section key={leg.legIndex} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -49,7 +71,25 @@ export function ResultView({
                   {leg.origin} → {leg.destination}
                 </div>
                 <div className="text-sm text-slate-500">
-                  {leg.airlineName} · {leg.cabin.replace("_", " ")}
+                  Evaluated against <span className="font-medium text-slate-700">{leg.airlineName}</span> ·{" "}
+                  {leg.cabin.replace("_", " ")}
+                </div>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {leg.operatingOverride && (
+                    <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+                      Operating carrier used (booked {leg.bookingAirlineName})
+                    </span>
+                  )}
+                  {leg.codeshare && (
+                    <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+                      Possible codeshare
+                    </span>
+                  )}
+                  {!leg.cabinModeled && leg.ruleSnapshot && (
+                    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                      Cabin not modeled · used {leg.ruleSnapshot.cabin}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">

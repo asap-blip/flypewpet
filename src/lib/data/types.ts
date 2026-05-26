@@ -97,6 +97,12 @@ export interface TripLegInput {
   cabin: CabinType;
   flightNumber?: string | null;
   aircraftType?: string | null;
+  // The carrier on the ticket (codeshare marketing carrier), if different from
+  // the booking airline. Informational.
+  marketedCarrierId?: string | null;
+  // The carrier that actually operates the flight. When present and different,
+  // it takes priority for rule evaluation (its pet policy is what applies).
+  operatingCarrierId?: string | null;
 }
 
 export interface CheckInput {

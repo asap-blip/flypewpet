@@ -43,6 +43,71 @@ describe("runCheck (static seed)", () => {
     expect(["BORDERLINE", "NO"]).toContain(res.result.overall);
   });
 
+  it("uses the operating carrier's rule and flags override + codeshare", async () => {
+    const input: CheckInput = {
+      carrierId: "petmate-sky-100", // oversized hard kennel, fails JetBlue
+      pet: { species: "dog", weightKg: 6 },
+      legs: [
+        {
+          airlineId: "air-canada", // booked on AC
+          operatingCarrierId: "jetblue", // actually flown by B6
+          origin: "YYZ",
+          destination: "BOS",
+          cabin: "economy",
+        },
+      ],
+    };
+    const res = await runCheck(input);
+    const leg = res.result.legs[0];
+    expect(leg.airlineId).toBe("jetblue"); // evaluated against operating carrier
+    expect(leg.bookingAirlineId).toBe("air-canada");
+    expect(leg.operatingOverride).toBe(true);
+    expect(leg.codeshare).toBe(true);
+    expect(leg.reasons.some((r) => r.code === "OPERATING_CARRIER_USED")).toBe(true);
+    expect(leg.reasons.some((r) => r.code === "CODESHARE_PARTNER_OPERATED")).toBe(true);
+    expect(res.warnings.some((w) => w.code === "CODESHARE_PRESENT")).toBe(true);
+  });
+
+  it("warns when an itinerary uses more than one airline", async () => {
+    const input: CheckInput = {
+      carrierId: "sherpa-original-md",
+      pet: { species: "cat", weightKg: 4 },
+      legs: [
+        { airlineId: "air-canada", origin: "YYZ", destination: "FRA", cabin: "economy" },
+        { airlineId: "lufthansa", origin: "FRA", destination: "MUC", cabin: "economy" },
+      ],
+    };
+    const res = await runCheck(input);
+    expect(res.warnings.some((w) => w.code === "MULTI_AIRLINE_ITINERARY")).toBe(true);
+  });
+
+  it("flags an unmodeled cabin and falls back to economy explicitly", async () => {
+    const input: CheckInput = {
+      carrierId: "sherpa-original-md",
+      pet: { species: "cat", weightKg: 4 },
+      // United only models economy; business should fall back + be flagged.
+      legs: [{ airlineId: "united", origin: "EWR", destination: "SFO", cabin: "business" }],
+    };
+    const res = await runCheck(input);
+    const leg = res.result.legs[0];
+    expect(leg.cabinModeled).toBe(false);
+    expect(leg.ruleSnapshot?.cabin).toBe("economy");
+    expect(leg.reasons.some((r) => r.code === "CABIN_NOT_MODELED")).toBe(true);
+  });
+
+  it("treats Lufthansa business as a modeled cabin (no fallback)", async () => {
+    const input: CheckInput = {
+      carrierId: "sherpa-original-md",
+      pet: { species: "cat", weightKg: 4 },
+      legs: [{ airlineId: "lufthansa", origin: "FRA", destination: "JFK", cabin: "business" }],
+    };
+    const res = await runCheck(input);
+    const leg = res.result.legs[0];
+    expect(leg.cabinModeled).toBe(true);
+    expect(leg.ruleSnapshot?.cabin).toBe("business");
+    expect(leg.reasons.some((r) => r.code === "CABIN_NOT_MODELED")).toBe(false);
+  });
+
   it("throws on an unknown carrier", async () => {
     await expect(
       runCheck({ carrierId: "does-not-exist", pet: { species: "dog", weightKg: 5 }, legs: [{ airlineId: "delta", ...baseLeg }] }),

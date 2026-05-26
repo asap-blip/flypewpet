@@ -6,6 +6,7 @@ import type { Airline, CabinType } from "@/lib/data/types";
 import type { Verdict } from "@/lib/rules/engine";
 import type { Reason } from "@/lib/rules/reasonCodes";
 import { verdictStyles } from "@/lib/ui";
+import { ALL_CABINS, CABIN_LABELS, coverageBadge, isCabinModeled, type CoverageMap } from "@/lib/coverage";
 
 // Compact, embeddable compatibility checker. This is the component intended to
 // later power an on-site merchant widget — it talks only to the public
@@ -14,10 +15,12 @@ export function CheckWidget({
   carrierId,
   carrierLabel,
   airlines,
+  coverage,
 }: {
   carrierId: string;
   carrierLabel: string;
   airlines: Airline[];
+  coverage: CoverageMap;
 }) {
   const [airlineId, setAirlineId] = useState(airlines[0]?.id ?? "");
   const [origin, setOrigin] = useState("");
@@ -66,7 +69,18 @@ export function CheckWidget({
       <div className="text-xs font-medium uppercase tracking-wide text-brand-700">Fits your flight?</div>
       <div className="mt-1 font-semibold text-slate-900">{carrierLabel}</div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-2 flex flex-wrap gap-1">
+        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700">
+          {coverageBadge(coverage[airlineId])}
+        </span>
+        {coverage[airlineId] && !coverage[airlineId].hasDimensions && (
+          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+            No published dimensions
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <select
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
           value={airlineId}
@@ -81,10 +95,16 @@ export function CheckWidget({
           value={cabin}
           onChange={(e) => setCabin(e.target.value as CabinType)}
         >
-          <option value="economy">Economy</option>
-          <option value="premium_economy">Premium economy</option>
-          <option value="business">Business</option>
-          <option value="first">First</option>
+          {(coverage[airlineId]?.cabins ?? ["economy"]).map((c) => (
+            <option key={c} value={c}>{CABIN_LABELS[c]}</option>
+          ))}
+          {ALL_CABINS.filter((c) => !(coverage[airlineId]?.cabins ?? ["economy"]).includes(c)).length > 0 && (
+            <optgroup label="Not separately modeled (uses economy)">
+              {ALL_CABINS.filter((c) => !(coverage[airlineId]?.cabins ?? ["economy"]).includes(c)).map((c) => (
+                <option key={c} value={c}>{CABIN_LABELS[c]} — not modeled</option>
+              ))}
+            </optgroup>
+          )}
         </select>
         <input
           className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
@@ -109,6 +129,13 @@ export function CheckWidget({
           />
         </label>
       </div>
+
+      {!isCabinModeled(coverage[airlineId], cabin) && (
+        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          {CABIN_LABELS[cabin]} isn&apos;t separately modeled for this airline — we&apos;ll evaluate
+          against its economy rule.
+        </p>
+      )}
 
       <button
         type="button"

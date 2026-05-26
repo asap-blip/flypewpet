@@ -1,4 +1,4 @@
-import type { Carrier, CheckInput } from "@/lib/data/types";
+import type { Airline, Carrier, CheckInput, TripLegInput } from "@/lib/data/types";
 import {
   evaluateTrip,
   type LegContext,
@@ -17,11 +17,19 @@ export interface AlternativeSuggestion {
   reasons: string[];
 }
 
+export type TripWarningCode = "MULTI_AIRLINE_ITINERARY" | "CODESHARE_PRESENT";
+
+export interface TripWarning {
+  code: TripWarningCode;
+  message: string;
+}
+
 export interface CheckResponse {
   input: CheckInput;
   carrier: Carrier;
   result: TripResult;
   alternatives: AlternativeSuggestion[];
+  warnings: TripWarning[];
   meta: {
     dataSource: string;
     generatedAt: string;
@@ -29,26 +37,79 @@ export interface CheckResponse {
   };
 }
 
+function placeholderAirline(id: string): Airline {
+  return { id, name: id, iata: "", country: null };
+}
+
+// Resolve which airline's rule applies: operating carrier takes priority, then
+// marketed carrier, then the booking airline.
+function evalAirlineId(leg: TripLegInput): string {
+  return leg.operatingCarrierId || leg.marketedCarrierId || leg.airlineId;
+}
+
 async function buildLegContexts(input: CheckInput): Promise<LegContext[]> {
   const repo = getRepository();
   return Promise.all(
     input.legs.map(async (leg) => {
-      const airline = await repo.getAirline(leg.airlineId);
-      const rule = airline
-        ? await repo.getRule(leg.airlineId, leg.cabin, leg.aircraftType)
+      const bookingId = leg.airlineId;
+      const evalId = evalAirlineId(leg);
+
+      const [bookingAirline, evalAirlineRaw] = await Promise.all([
+        repo.getAirline(bookingId),
+        repo.getAirline(evalId),
+      ]);
+      const evalAirline = evalAirlineRaw ?? placeholderAirline(evalId);
+      const booking = bookingAirline ?? placeholderAirline(bookingId);
+
+      const rule = evalAirlineRaw
+        ? await repo.getRule(evalId, leg.cabin, leg.aircraftType)
         : null;
+
+      const operatingOverride = evalId !== bookingId;
+      // Codeshare: an operating carrier is named and differs from the carrier on
+      // the ticket (marketed, or the booking airline if marketed not specified).
+      const ticketCarrier = leg.marketedCarrierId || leg.airlineId;
+      const codeshare = Boolean(leg.operatingCarrierId && leg.operatingCarrierId !== ticketCarrier);
+      // The requested cabin is "modeled" only if a rule for that exact cabin exists.
+      const cabinModeled = Boolean(rule && rule.cabin === leg.cabin);
+
       return {
         leg,
-        airline: airline ?? {
-          id: leg.airlineId,
-          name: leg.airlineId,
-          iata: "",
-          country: null,
-        },
+        airline: evalAirline,
         rule,
-      };
+        meta: {
+          evalAirline,
+          bookingAirline: booking,
+          operatingOverride,
+          codeshare,
+          cabinModeled,
+        },
+      } satisfies LegContext;
     }),
   );
+}
+
+function buildWarnings(contexts: LegContext[]): TripWarning[] {
+  const warnings: TripWarning[] = [];
+
+  const distinctEvalAirlines = new Set(contexts.map((c) => c.airline.id));
+  if (distinctEvalAirlines.size > 1) {
+    warnings.push({
+      code: "MULTI_AIRLINE_ITINERARY",
+      message:
+        "Your itinerary uses more than one airline. Each leg is checked against its own airline's rules — acceptance on one airline does not carry over to another.",
+    });
+  }
+
+  if (contexts.some((c) => c.meta?.codeshare)) {
+    warnings.push({
+      code: "CODESHARE_PRESENT",
+      message:
+        "One or more legs may be operated by a partner airline (codeshare). The operating carrier's pet policy is the one that applies at the gate — confirm it with that carrier.",
+    });
+  }
+
+  return warnings;
 }
 
 // Aggregate spare headroom of a carrier against a trip's tightest rule, used to
@@ -122,6 +183,7 @@ export async function runCheck(
 
   const contexts = await buildLegContexts(input);
   const result = evaluateTrip(carrier, input.pet, contexts);
+  const warnings = buildWarnings(contexts);
 
   // Show alternatives whenever the trip is not a clean PASS, plus a small set
   // of roomier options on PASS (without distracting from the result).
@@ -151,6 +213,7 @@ export async function runCheck(
     carrier,
     result,
     alternatives,
+    warnings,
     meta: {
       dataSource: process.env.NEXT_PUBLIC_SUPABASE_URL ? "supabase" : "static-seed",
       generatedAt: new Date().toISOString(),

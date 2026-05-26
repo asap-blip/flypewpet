@@ -146,11 +146,33 @@ airline's source URL and last-verified date.
 Honest limitations, surfaced in the UI (landing, `/check`, `/rules`):
 
 - **Routes are not validated or route-specific.** A verdict depends only on the
-  **airline + cabin**, never the city pair.
+  **airline + cabin** (and the operating carrier), never the city pair.
 - **Cabins other than economy** (premium economy, first, and business on every
-  airline except Lufthansa) **fall back to the airline's economy rule** — they
-  are not separately modeled.
+  airline except Lufthansa) **fall back to the airline's economy rule**. This is
+  **no longer silent**: the check form shows unmodeled cabins under a "Not
+  separately modeled (uses economy)" group with an inline notice, and each result
+  leg carries a "Cabin not modeled · used economy" badge plus a `CABIN_NOT_MODELED`
+  reason.
+- A **coverage badge** sits next to every airline selector ("Economy only",
+  "Economy + Business", "No published dimensions").
 - All values are illustrative until independently re-verified.
+
+### Multi-leg / layover itineraries
+
+The checker evaluates each flight segment independently and derives the overall
+verdict from the **worst leg** (NO > BORDERLINE > PASS).
+
+- Each leg takes origin, destination, airline, cabin, optional flight number, and
+  optional **marketed** + **operating** carriers.
+- Rule priority is **operating carrier > marketed carrier > booking airline**, so
+  a partner-operated flight is judged against the carrier whose policy actually
+  applies. The result shows which airline was used and an "Operating carrier used"
+  badge when it differs from the booking airline.
+- Trip-level warnings appear when the itinerary **uses more than one airline**
+  (acceptance does not carry over) and when a **codeshare / partner-operated**
+  flight is detected. Per-leg "Possible codeshare" badges mark the affected legs.
+- Every leg result shows its source URL + last-verified date, and says so plainly
+  when the data is incomplete.
 
 ## Rules & Sources (transparency layer)
 

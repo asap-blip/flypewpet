@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckWidget } from "@/components/CheckWidget";
 import { getRepository } from "@/lib/data/repository";
+import { buildCoverageMap } from "@/lib/coverage";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,12 @@ export default async function MerchantDemoPage({
   const merchant = await repo.getMerchantBySlug(slug);
   if (!merchant) notFound();
 
-  const [products, airlines] = await Promise.all([
+  const [products, airlines, rules] = await Promise.all([
     repo.listMerchantProducts(merchant.id),
     repo.listAirlines(),
+    repo.listRules(),
   ]);
+  const coverage = buildCoverageMap(airlines, rules);
 
   const withCarriers = await Promise.all(
     products.map(async (p) => ({ product: p, carrier: await repo.getCarrier(p.carrierId) })),
@@ -55,6 +58,7 @@ export default async function MerchantDemoPage({
             carrierId={featured.carrier.id}
             carrierLabel={`${featured.carrier.brand} ${featured.carrier.model}`}
             airlines={airlines}
+            coverage={coverage}
           />
         </section>
       )}

@@ -4,6 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import type { Airline, Carrier, CabinType, PetSpecies } from "@/lib/data/types";
+import {
+  ALL_CABINS,
+  CABIN_LABELS,
+  coverageBadge,
+  isCabinModeled,
+  type CoverageMap,
+} from "@/lib/coverage";
 
 interface LegField {
   airlineId: string;
@@ -11,6 +18,8 @@ interface LegField {
   destination: string;
   cabin: CabinType;
   flightNumber?: string;
+  marketedCarrierId?: string;
+  operatingCarrierId?: string;
 }
 
 interface FormValues {
@@ -22,13 +31,6 @@ interface FormValues {
   petHeightCm?: number;
   legs: LegField[];
 }
-
-const CABINS: { value: CabinType; label: string }[] = [
-  { value: "economy", label: "Economy" },
-  { value: "premium_economy", label: "Premium economy" },
-  { value: "business", label: "Business" },
-  { value: "first", label: "First" },
-];
 
 const SPECIES: { value: PetSpecies; label: string }[] = [
   { value: "dog", label: "Dog" },
@@ -45,10 +47,12 @@ const label = "block text-xs font-medium text-slate-600 mb-1";
 export function CheckForm({
   airlines,
   carriers,
+  coverage,
   initialCarrierId,
 }: {
   airlines: Airline[];
   carriers: Carrier[];
+  coverage: CoverageMap;
   initialCarrierId?: string;
 }) {
   const router = useRouter();
@@ -67,6 +71,18 @@ export function CheckForm({
   });
   const { fields, append, remove } = useFieldArray({ control, name: "legs" });
   const selectedCarrierId = watch("carrierId");
+  const legs = watch("legs");
+
+  const airlineName = (id?: string) => airlines.find((a) => a.id === id)?.name ?? id ?? "";
+
+  // Resolve the airline whose rules apply for a leg: operating > marketed > booking.
+  const evalAirlineId = (leg: LegField) =>
+    leg.operatingCarrierId || leg.marketedCarrierId || leg.airlineId;
+
+  const distinctEvalAirlines = new Set((legs ?? []).map((l) => evalAirlineId(l)));
+  const hasCodeshare = (legs ?? []).some(
+    (l) => l.operatingCarrierId && l.operatingCarrierId !== (l.marketedCarrierId || l.airlineId),
+  );
 
   async function lookupCode() {
     setCodeMsg(null);
@@ -103,6 +119,8 @@ export function CheckForm({
         destination: l.destination.trim().toUpperCase(),
         cabin: l.cabin,
         flightNumber: l.flightNumber || null,
+        marketedCarrierId: l.marketedCarrierId || null,
+        operatingCarrierId: l.operatingCarrierId || null,
       })),
     };
     try {
@@ -213,50 +231,136 @@ export function CheckForm({
             + Add leg
           </button>
         </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Add one leg per flight. Each leg is checked separately against its airline&apos;s rules.
+        </p>
+
         <div className="mt-4 space-y-4">
-          {fields.map((field, i) => (
-            <div key={field.id} className="rounded-xl border border-slate-200 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">Leg {i + 1}</span>
-                {fields.length > 1 && (
-                  <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">
-                    Remove
-                  </button>
+          {fields.map((field, i) => {
+            const leg = legs?.[i];
+            const bookingCov = leg ? coverage[leg.airlineId] : undefined;
+            const evalId = leg ? evalAirlineId(leg) : "";
+            const evalCov = coverage[evalId];
+            const supportedCabins = (evalCov?.cabins ?? ["economy"]) as CabinType[];
+            const unsupportedCabins = ALL_CABINS.filter((c) => !supportedCabins.includes(c));
+            const cabinModeledHere = leg ? isCabinModeled(evalCov, leg.cabin) : true;
+            const codeshareHere = Boolean(
+              leg?.operatingCarrierId && leg.operatingCarrierId !== (leg.marketedCarrierId || leg.airlineId),
+            );
+
+            return (
+              <div key={field.id} className="rounded-xl border border-slate-200 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">Leg {i + 1}</span>
+                  {fields.length > 1 && (
+                    <button type="button" onClick={() => remove(i)} className="text-xs text-rose-600 hover:underline">
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                  <div className="lg:col-span-2">
+                    <label className={label}>Airline (booking)</label>
+                    <select className={input} {...register(`legs.${i}.airlineId` as const)}>
+                      {airlines.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </select>
+                    {bookingCov && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700">
+                          {coverageBadge(bookingCov)}
+                        </span>
+                        {!bookingCov.hasDimensions && (
+                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                            No published dimensions
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={label}>From</label>
+                    <input className={input} placeholder="YYZ" {...register(`legs.${i}.origin` as const)} />
+                  </div>
+                  <div>
+                    <label className={label}>To</label>
+                    <input className={input} placeholder="LHR" {...register(`legs.${i}.destination` as const)} />
+                  </div>
+                  <div>
+                    <label className={label}>Cabin</label>
+                    <select className={input} {...register(`legs.${i}.cabin` as const)}>
+                      {supportedCabins.map((c) => (
+                        <option key={c} value={c}>{CABIN_LABELS[c]}</option>
+                      ))}
+                      {unsupportedCabins.length > 0 && (
+                        <optgroup label="Not separately modeled (uses economy)">
+                          {unsupportedCabins.map((c) => (
+                            <option key={c} value={c}>{CABIN_LABELS[c]} — not modeled</option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div>
+                    <label className={label}>Flight number (optional)</label>
+                    <input className={input} placeholder="AC 856" {...register(`legs.${i}.flightNumber` as const)} />
+                  </div>
+                  <div>
+                    <label className={label}>Marketed by (optional)</label>
+                    <select className={input} {...register(`legs.${i}.marketedCarrierId` as const)}>
+                      <option value="">Same as airline</option>
+                      {airlines.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={label}>Operated by (optional)</label>
+                    <select className={input} {...register(`legs.${i}.operatingCarrierId` as const)}>
+                      <option value="">Same as airline</option>
+                      {airlines.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Explicit, pre-submit honesty notices */}
+                {!cabinModeledHere && leg && (
+                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    {CABIN_LABELS[leg.cabin]} isn&apos;t separately modeled for {airlineName(evalId)}. We&apos;ll
+                    evaluate this leg against its <strong>economy</strong> rule, which may be more conservative.
+                  </p>
+                )}
+                {leg?.operatingCarrierId && leg.operatingCarrierId !== leg.airlineId && (
+                  <p className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                    Rules will be evaluated against the operating carrier, {airlineName(leg.operatingCarrierId)}
+                    {codeshareHere ? " — this looks like a codeshare/partner-operated flight." : "."}
+                  </p>
                 )}
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                <div className="lg:col-span-2">
-                  <label className={label}>Airline</label>
-                  <select className={input} {...register(`legs.${i}.airlineId` as const)}>
-                    {airlines.map((a) => (
-                      <option key={a.id} value={a.id}>{a.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={label}>From</label>
-                  <input className={input} placeholder="YYZ" {...register(`legs.${i}.origin` as const)} />
-                </div>
-                <div>
-                  <label className={label}>To</label>
-                  <input className={input} placeholder="LHR" {...register(`legs.${i}.destination` as const)} />
-                </div>
-                <div>
-                  <label className={label}>Cabin</label>
-                  <select className={input} {...register(`legs.${i}.cabin` as const)}>
-                    {CABINS.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="lg:col-span-2">
-                  <label className={label}>Flight number (optional)</label>
-                  <input className={input} placeholder="AC 856" {...register(`legs.${i}.flightNumber` as const)} />
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Trip-level pre-submit warnings */}
+        {distinctEvalAirlines.size > 1 && (
+          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Your itinerary uses more than one airline. Each leg is checked separately — acceptance on one
+            airline does <strong>not</strong> guarantee acceptance on another.
+          </p>
+        )}
+        {hasCodeshare && (
+          <p className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
+            A leg may be operated by a partner (codeshare). The operating carrier&apos;s pet policy is what
+            applies at the gate — confirm directly with them.
+          </p>
+        )}
       </section>
 
       {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}

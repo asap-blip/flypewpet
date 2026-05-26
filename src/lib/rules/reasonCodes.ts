@@ -20,6 +20,9 @@ export type ReasonCode =
   | "AIRCRAFT_DATA_MISSING"
   | "PET_COMFORT_RISK"
   | "PET_COMFORT_UNCERTAIN"
+  | "CABIN_NOT_MODELED"
+  | "OPERATING_CARRIER_USED"
+  | "CODESHARE_PARTNER_OPERATED"
   | "FINAL_APPROVAL_AIRLINE_DISCRETION";
 
 export interface Reason {
@@ -46,5 +49,8 @@ export const REASON_LABELS: Record<ReasonCode, string> = {
   AIRCRAFT_DATA_MISSING: "Under-seat space varies by aircraft; provide a flight number for precision",
   PET_COMFORT_RISK: "Pet measurements suggest limited room to stand or turn",
   PET_COMFORT_UNCERTAIN: "No pet measurements provided; comfort could not be assessed",
+  CABIN_NOT_MODELED: "This cabin isn't separately modeled; evaluated against the airline's economy rule",
+  OPERATING_CARRIER_USED: "Evaluated against the operating carrier's rule, not the booking airline",
+  CODESHARE_PARTNER_OPERATED: "Possible codeshare: a partner may operate this flight — confirm the pet policy with the operating carrier",
   FINAL_APPROVAL_AIRLINE_DISCRETION: "Final acceptance is always at the airline's discretion at the gate",
 };

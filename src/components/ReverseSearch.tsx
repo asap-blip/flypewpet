@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Carrier } from "@/lib/data/types";
 import { recommendCarriers, type CarrierRecommendation, type FitBand } from "@/lib/recommend";
 import { trackedClickUrl } from "@/lib/affiliate";
+import { PetMeasureHelp, RecommendationHelp } from "./Help";
 
 const input =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
@@ -64,6 +65,7 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
         <button type="submit" className="mt-4 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700">
           Find matching carriers
         </button>
+        <PetMeasureHelp />
       </form>
 
       {results && (
@@ -73,6 +75,8 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
             guarantee. They don&apos;t account for your pet&apos;s exact shape or behaviour, and they
             don&apos;t yet check airline rules. Pick one and run a trip check next.
           </div>
+
+          <RecommendationHelp />
 
           {recommended.length === 0 ? (
             <p className="text-sm text-slate-600">

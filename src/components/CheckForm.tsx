@@ -11,6 +11,7 @@ import {
   isCabinModeled,
   type CoverageMap,
 } from "@/lib/coverage";
+import { CarrierMeasureHelp, FlightInfoHelp, PetMeasureHelp } from "./Help";
 
 interface LegField {
   airlineId: string;
@@ -204,6 +205,7 @@ export function CheckForm({
             })()}
           </p>
         )}
+        <CarrierMeasureHelp />
       </section>
 
       {/* Pet */}
@@ -234,6 +236,7 @@ export function CheckForm({
         <p className="mt-2 text-xs text-slate-400">
           Measurements are optional but let us flag comfort risk (room to stand and turn).
         </p>
+        <PetMeasureHelp />
       </section>
 
       {/* Itinerary */}
@@ -251,6 +254,7 @@ export function CheckForm({
         <p className="mt-1 text-xs text-slate-500">
           Add one leg per flight. Each leg is checked separately against its airline&apos;s rules.
         </p>
+        <FlightInfoHelp />
 
         <div className="mt-4 space-y-4">
           {fields.map((field, i) => {

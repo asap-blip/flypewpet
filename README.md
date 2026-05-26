@@ -202,6 +202,18 @@ and `/carriers` says so. The reverse-search heuristic is explicitly framed as a
 not account for a pet's exact shape or behaviour, and does not check airline rules
 (that happens downstream in `/check`).
 
+## In-flow help
+
+Core tasks are explained in-place so users don't leave to look things up. All
+helpers are collapsed-by-default native `<details>` panels (`src/components/Help.tsx`)
+— no JS, mobile-friendly, and they never clutter the page:
+
+- **How to measure your pet** — pet section of `/check` and the `/find` form.
+- **How to measure your carrier** — carrier section of `/check`.
+- **How to find your airline, operating carrier & cabin** — itinerary section of `/check`.
+- **What PASS / BORDERLINE / NO mean** — results page (reiterates "checker, not a guarantee").
+- **How we choose recommended carriers** — next to `/find` results (keeps affiliate disclosure visible).
+
 ## Trust & reliability
 
 Designed to be safe to soft-launch: every verdict shows how much to trust it and why.

@@ -6,6 +6,7 @@ import { ConfidenceBadge, ConfidenceReasons } from "./ConfidenceBadge";
 import { AlternativesPanel } from "./AlternativesPanel";
 import { ShareLink } from "./ShareLink";
 import { SourceCitation } from "./SourceCitation";
+import { VerdictHelp } from "./Help";
 import { verdictHeadline } from "@/lib/ui";
 
 export function ResultView({
@@ -42,6 +43,7 @@ export function ResultView({
           </div>
         </div>
         <ConfidenceReasons confidence={result.confidence} reasons={result.confidenceReasons} />
+        <VerdictHelp />
         {showShare && (
           <div className="mt-4 flex items-center gap-2">
             <ShareLink />

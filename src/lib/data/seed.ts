@@ -30,6 +30,10 @@ export const airlines: Airline[] = [
   { id: "jetblue", name: "JetBlue Airways", iata: "B6", country: "US" },
   { id: "alaska", name: "Alaska Airlines", iata: "AS", country: "US" },
   { id: "lufthansa", name: "Lufthansa", iata: "LH", country: "DE" },
+  { id: "porter", name: "Porter Airlines", iata: "PD", country: "CA" },
+  { id: "westjet", name: "WestJet", iata: "WS", country: "CA" },
+  { id: "air-transat", name: "Air Transat", iata: "TS", country: "CA" },
+  { id: "flair", name: "Flair Airlines", iata: "F8", country: "CA" },
 ];
 
 export const airlineRules: AirlineRule[] = [
@@ -205,6 +209,82 @@ export const airlineRules: AirlineRule[] = [
     sourceUrl:
       "https://www.lufthansa.com/de/en/travelling-with-animals",
     sourceLabel: "Lufthansa — Travelling with animals (business)",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-05-26",
+  },
+  {
+    id: "porter-economy",
+    airlineId: "porter",
+    cabin: "economy",
+    aircraftType: null,
+    // Soft-sided only; 55 x 40 x 23 cm (22 x 16 x 9 in); pet + carrier <= 9 kg.
+    maxLengthCm: 55,
+    maxWidthCm: 40,
+    maxHeightCm: 23,
+    maxCombinedWeightKg: 9,
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier only. Max 55x40x23 cm (22x16x9 in). Combined pet + carrier max 9 kg (20 lb). Must fit under the seat.",
+    sourceUrl: "https://www.flyporter.com/en-ca/travel-information/baggage/pets",
+    sourceLabel: "Porter Airlines — Travelling with pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-05-26",
+  },
+  {
+    id: "westjet-economy",
+    airlineId: "westjet",
+    cabin: "economy",
+    aircraftType: null,
+    // Soft-sided; 16 x 8.5 x 10 in; pet + carrier <= 10 kg.
+    maxLengthCm: inch(16),
+    maxWidthCm: inch(8.5),
+    maxHeightCm: inch(10),
+    maxCombinedWeightKg: 10,
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier required in cabin. Max 16x8.5x10 in (41x21.6x25.4 cm). Combined pet + carrier max 10 kg (22 lb).",
+    sourceUrl: "https://www.westjet.com/en-ca/pets",
+    sourceLabel: "WestJet — Travelling with pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-05-26",
+  },
+  {
+    id: "air-transat-economy",
+    airlineId: "air-transat",
+    cabin: "economy",
+    aircraftType: null,
+    // Soft-sided only (hard not permitted); 43 L x 24 W x 25 H cm; <= 8 kg.
+    maxLengthCm: 43,
+    maxWidthCm: 24,
+    maxHeightCm: 25,
+    maxCombinedWeightKg: 8,
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier required (hard-sided not permitted in cabin). Max 43x24x25 cm (17x9x10 in). Combined pet + carrier max 8 kg.",
+    sourceUrl: "https://www.airtransat.com/en-CA/forms/pet-information",
+    sourceLabel: "Air Transat — Travelling with pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-05-26",
+  },
+  {
+    id: "flair-economy",
+    airlineId: "flair",
+    cabin: "economy",
+    aircraftType: null,
+    // Soft-sided; 41 x 23 x 25 cm (16 x 9 x 10 in); <= 10.4 kg. Domestic Canada only.
+    maxLengthCm: 41,
+    maxWidthCm: 23,
+    maxHeightCm: 25,
+    maxCombinedWeightKg: 10.4,
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier required. Max 41x23x25 cm (16x9x10 in). Combined pet + carrier max 10.4 kg (23 lb). In-cabin pets on domestic Canada flights only — not offered on US/international routes.",
+    sourceUrl: "https://www.flyflair.com/travel-info/baggage/pets-onboard",
+    sourceLabel: "Flair Airlines — Pets onboard",
     sourceType: "airline_official",
     lastVerifiedAt: "2026-05-26",
   },

@@ -30,4 +30,12 @@ describe("coverage", () => {
   it("returns 'Not supported' for an unknown airline", () => {
     expect(coverageBadge(undefined)).toBe("Not supported");
   });
+
+  it("includes the Canadian carriers as economy with dimensions on file", () => {
+    for (const id of ["porter", "westjet", "air-transat", "flair"]) {
+      expect(map[id]).toBeDefined();
+      expect(map[id].cabins).toEqual(["economy"]);
+      expect(map[id].hasDimensions).toBe(true);
+    }
+  });
 });

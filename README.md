@@ -134,14 +134,17 @@ Reason codes are structured (e.g. `DIMENSION_HEIGHT_EXCEEDED`,
 
 ## Coverage (what's actually supported today)
 
-This is **not** full airline coverage. The seed currently includes **8 airlines /
-9 rules**, and `/rules` shows a visible **Supported airlines** list with each
-airline's source URL and last-verified date.
+This is **not** full airline coverage. The seed currently includes **12 airlines /
+13 rules** (7 US, 4 Canada, 1 international), and `/rules` shows a visible
+**Supported airlines** list with each airline's source URL and last-verified date.
 
 | Airline | Cabin(s) modeled | Dimensions on file? |
 | --- | --- | --- |
-| Air Canada, United, American, Southwest, JetBlue, Alaska, Lufthansa | Economy (Lufthansa also Business) | Yes |
+| Air Canada, United, American, Southwest, JetBlue, Alaska, Lufthansa, Porter, WestJet, Air Transat, Flair | Economy (Lufthansa also Business) | Yes |
 | Delta | Economy | **No** — incomplete by design; always returns BORDERLINE / low confidence |
+
+Canadian carriers (Porter, WestJet, Air Transat, Flair) all require soft-sided
+carriers in cabin. Flair offers in-cabin pets on domestic Canada routes only.
 
 Honest limitations, surfaced in the UI (landing, `/check`, `/rules`):
 

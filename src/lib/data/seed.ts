@@ -34,6 +34,16 @@ export const airlines: Airline[] = [
   { id: "westjet", name: "WestJet", iata: "WS", country: "CA" },
   { id: "air-transat", name: "Air Transat", iata: "TS", country: "CA" },
   { id: "flair", name: "Flair Airlines", iata: "F8", country: "CA" },
+  { id: "klm", name: "KLM Royal Dutch Airlines", iata: "KL", country: "NL" },
+  { id: "air-france", name: "Air France", iata: "AF", country: "FR" },
+  { id: "frontier", name: "Frontier Airlines", iata: "F9", country: "US" },
+  { id: "spirit", name: "Spirit Airlines", iata: "NK", country: "US" },
+  { id: "avelo", name: "Avelo Airlines", iata: "XP", country: "US" },
+  { id: "british-airways", name: "British Airways", iata: "BA", country: "GB" },
+  { id: "allegiant", name: "Allegiant Air", iata: "G4", country: "US" },
+  { id: "hawaiian", name: "Hawaiian Airlines", iata: "HA", country: "US" },
+  { id: "emirates", name: "Emirates", iata: "EK", country: "AE" },
+  { id: "ryanair", name: "Ryanair", iata: "FR", country: "IE" },
 ];
 
 export const airlineRules: AirlineRule[] = [
@@ -288,10 +298,206 @@ export const airlineRules: AirlineRule[] = [
     sourceType: "airline_official",
     lastVerifiedAt: "2026-05-26",
   },
+  // ---------------------------------------------------------------------------
+  // New airlines added 2026-06-18
+  // ---------------------------------------------------------------------------
+  {
+    id: "klm-economy",
+    airlineId: "klm",
+    cabin: "economy",
+    aircraftType: null,
+    // Economy (all routes) and Business (Europe only): 46 x 28 x 24 cm; pet + carrier <= 8 kg.
+    maxLengthCm: 46,
+    maxWidthCm: 28,
+    maxHeightCm: 24,
+    maxCombinedWeightKg: 8,
+    softSidedRequirement: null,
+    aircraftVaries: false,
+    notes:
+      "Economy (all routes) and Business within Europe. Carrier max 46x28x24 cm (18x11x9 in). Combined pet + carrier max 8 kg (17.6 lb). Must fit under the seat. Not allowed in Premium Comfort or Business on intercontinental routes.",
+    sourceUrl: "https://www.klm.com/information/pets/reservation",
+    sourceLabel: "KLM — Flying with your pet in the cabin or hold",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "air-france-economy",
+    airlineId: "air-france",
+    cabin: "economy",
+    aircraftType: null,
+    // Air France does not publish explicit carrier dimensions. Weight limit is official.
+    // Dimensions below are from third-party sources and need re-verification.
+    maxLengthCm: inch(18),
+    maxWidthCm: inch(11),
+    maxHeightCm: inch(11),
+    maxCombinedWeightKg: 8,
+    softSidedRequirement: null,
+    aircraftVaries: true,
+    notes:
+      "Pet + carrier must weigh less than 8 kg (17.6 lb) for in-cabin travel. Air France does not publish explicit carrier maximum dimensions — the values below (~18x11x11 in) are from third-party sources and need re-verification against official Air France policy. Confirm directly with Air France before travel.",
+    sourceUrl: "https://wwws.airfrance.fr/en/information/passagers/voyager-avec-son-animal-chien-chat",
+    sourceLabel: "Air France — Travel with your pet",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "frontier-economy",
+    airlineId: "frontier",
+    cabin: "economy",
+    aircraftType: null,
+    // Hard-sided: 18 x 14 x 8 in; soft-sided: 18 x 14 x 11 in. Domestic US only.
+    maxLengthCm: inch(18),
+    maxWidthCm: inch(14),
+    maxHeightCm: inch(11),
+    maxCombinedWeightKg: null,
+    softSidedRequirement: "recommended",
+    aircraftVaries: false,
+    notes:
+      "Hard-sided max 18x14x8 in; soft-sided max 18x14x11 in. Soft-sided recommended. No published weight limit. Domestic US flights only — no cargo hold pets. Only service dogs accepted on international flights.",
+    sourceUrl: "https://faq.flyfrontier.com/help/do-you-allow-pets-on-the-plane",
+    sourceLabel: "Frontier Airlines — Pets Onboard",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "spirit-economy",
+    airlineId: "spirit",
+    cabin: "economy",
+    aircraftType: null,
+    // Soft-sided only: 18 x 14 x 9 in; pet + carrier <= 40 lb.
+    maxLengthCm: inch(18),
+    maxWidthCm: inch(14),
+    maxHeightCm: inch(9),
+    maxCombinedWeightKg: lb(40),
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier required (hard-sided not permitted). Max 18x14x9 in. Combined pet + carrier max 40 lb (18.1 kg). Domestic US only. Spirit is strict on carrier dimensions — carrier must slide completely under the seat.",
+    sourceUrl: "https://www.spirit.com/en/us/pets",
+    sourceLabel: "Spirit Airlines — Pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "avelo-economy",
+    airlineId: "avelo",
+    cabin: "economy",
+    aircraftType: null,
+    // Hard-sided: 17 x 13 x 9 in; soft-sided must fit in same space.
+    maxLengthCm: inch(17),
+    maxWidthCm: inch(9),
+    maxHeightCm: inch(13),
+    maxCombinedWeightKg: null,
+    softSidedRequirement: null,
+    aircraftVaries: false,
+    notes:
+      "Hard-sided max 17x13x9 in (43x33x22 cm); soft-sided must fit in the same space. Both hard and soft permitted. No published weight limit. Domestic US only. Up to 8 pet carriers per flight.",
+    sourceUrl: "https://www.aveloair.com/help/pet-policy",
+    sourceLabel: "Avelo Airlines — Pet Policy",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "british-airways-cargo-only",
+    airlineId: "british-airways",
+    cabin: "economy",
+    aircraftType: null,
+    // BA does not allow pets in cabin at all (except assistance dogs).
+    maxLengthCm: null,
+    maxWidthCm: null,
+    maxHeightCm: null,
+    maxCombinedWeightKg: null,
+    softSidedRequirement: null,
+    aircraftVaries: false,
+    notes:
+      "British Airways does NOT allow pets in the cabin on any route (except assistance/service dogs). All pets must travel in the hold via cargo. This airline is listed so users get an honest answer instead of 'unsupported airline'. Confirm arrangements with PetAir UK (export) or IAG Cargo (import).",
+    sourceUrl: "https://www.britishairways.com/content/information/travel-assistance/travelling-with-pets",
+    sourceLabel: "British Airways — Travelling with pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  // ---------------------------------------------------------------------------
+  // New airlines added 2026-06-18 (round 2)
+  // ---------------------------------------------------------------------------
+  {
+    id: "allegiant-economy",
+    airlineId: "allegiant",
+    cabin: "economy",
+    aircraftType: null,
+    // Max carrier: 19 x 16 x 9 in. Soft-sided recommended. In-cabin only, no cargo.
+    maxLengthCm: inch(19),
+    maxWidthCm: inch(16),
+    maxHeightCm: inch(9),
+    maxCombinedWeightKg: null,
+    softSidedRequirement: "recommended",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier recommended. Max 19x16x9 in (48x41x23 cm). Combined pet + carrier max 20 lb (9 kg) per carrier (up to 2 carriers per booking). In-cabin only — no cargo hold pets. Domestic US (contiguous 48 states) and Puerto Rico only. Up to 2 pets per carrier, 2 carriers per booking.",
+    sourceUrl: "https://www.allegiantair.com/traveling-with-pets",
+    sourceLabel: "Allegiant Air — Traveling with Pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "hawaiian-economy",
+    airlineId: "hawaiian",
+    cabin: "economy",
+    aircraftType: null,
+    // Cabin: 17 x 11 x 9.5 in; pet + carrier max 25 lb. Hawaii-mainland and interisland.
+    maxLengthCm: inch(17),
+    maxWidthCm: inch(11),
+    maxHeightCm: inch(9.5),
+    maxCombinedWeightKg: lb(25),
+    softSidedRequirement: "required",
+    aircraftVaries: false,
+    notes:
+      "Soft-sided carrier required in cabin. Max 17x11x9.5 in (43x28x24 cm). Combined pet + carrier max 25 lb (11.3 kg). Allowed on Hawaii-mainland and interisland routes. $35 interisland, $125 mainland-Hawaii. Pets not accepted in cabin on international flights.",
+    sourceUrl: "https://www.hawaiianairlines.com/content/travel-info/pets",
+    sourceLabel: "Hawaiian Airlines — Traveling with Pets",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "emirates-cargo-only",
+    airlineId: "emirates",
+    cabin: "economy",
+    aircraftType: null,
+    maxLengthCm: null,
+    maxWidthCm: null,
+    maxHeightCm: null,
+    maxCombinedWeightKg: null,
+    softSidedRequirement: null,
+    aircraftVaries: false,
+    notes:
+      "Emirates does NOT allow pets in the cabin (except falcons on select Dubai-Pakistan routes and certified guide dogs/assistance animals). All other pets must travel as manifest cargo via Emirates SkyCargo. This airline is listed so users get an honest answer instead of 'unsupported airline'.",
+    sourceUrl: "https://www.emirates.com/english/help/faq/449416/can-i-carry-live-animals-on-emirates-flights",
+    sourceLabel: "Emirates — Can I carry live animals on Emirates flights?",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
+  {
+    id: "ryanair-no-pets",
+    airlineId: "ryanair",
+    cabin: "economy",
+    aircraftType: null,
+    maxLengthCm: null,
+    maxWidthCm: null,
+    maxHeightCm: null,
+    maxCombinedWeightKg: null,
+    softSidedRequirement: null,
+    aircraftVaries: false,
+    notes:
+      "Ryanair does NOT carry animals on board any flights (except certified guide/assistance dogs on certain routes). Pets cannot travel in the cabin or cargo hold. This airline is listed so users get an honest answer instead of 'unsupported airline'.",
+    sourceUrl: "https://help.ryanair.com/hc/en-gb/articles/12890968181521-Does-Ryanair-carry-animals",
+    sourceLabel: "Ryanair — Does Ryanair carry animals?",
+    sourceType: "airline_official",
+    lastVerifiedAt: "2026-06-18",
+  },
 ];
 
-const AMZ = "https://www.amazon.com/s?k=";
-const affBase = (q: string) => `${AMZ}${encodeURIComponent(q)}`;
+const AMZ_CA = "https://www.amazon.ca/dp/";
+const affBase = (q: string) => `https://www.amazon.ca/s?k=${encodeURIComponent(q)}`;
+const amzProduct = (asin: string) => `${AMZ_CA}${asin}`;
 
 export const carriers: Carrier[] = [
   c("sherpa-original-md", "Sherpa", "Original Deluxe (Medium)", "SHP-OD-M", true, 43, 27, 27, 1.2, "team_verified", 6.8, 45, "Airline-favorite soft carrier with mesh panels."),
@@ -316,6 +522,23 @@ export const carriers: Carrier[] = [
   c("vceoa-small", "Vceoa", "Soft Carrier (Small)", "VCE-SS-S", true, 41, 28, 28, 0.9, "not_verified_yet", 3.8, 27),
   c("petmate-sky-100", "Petmate", "Sky Kennel 100", "PTM-SK100", false, 53, 38, 38, 3.5, "team_verified", 8.0, 45, "IATA cargo kennel; not a cabin carrier."),
   c("morpilot-expandable", "Morpilot", "Expandable Carrier", "MRP-EXP", true, 46, 28, 28, 1.3, "not_verified_yet", 5.0, 42),
+  // ---------------------------------------------------------------------------
+  // New carriers added 2026-06-18
+  // ---------------------------------------------------------------------------
+  c("roverlund-carrier", "Roverlund", "Pet Carrier", "RVL-PC", true, inch(18), inch(11.5), inch(11.5), 1.45, "not_verified_yet", 11.3, 180, "Structured soft carrier with luggage sleeve and convertible shoulder strap."),
+  c("katziela-rolling", "Katziela", "Rolling Rover", "KTZ-RR", true, inch(18), inch(11), inch(10.5), 1.3, "not_verified_yet", 6.8, 70, "Rolling pet carrier with telescopic handle and six wheels for easy airport navigation."),
+  c("mr-peanuts-gold", "Mr. Peanut's", "Gold Series Expandable", "MPN-GOLD", true, inch(18), inch(11), inch(11), 1.2, "traveler_reported", 6.8, 65, "Expandable airline-capable tote. Ranked #1 overall by Hepper."),
+  c("petfusion-carrier", "PetFusion", "Pet Carrier", "PTF-PC", true, inch(17), inch(11), inch(11), 1.1, "not_verified_yet", 6.8, 115, "Structured nylon carrier with self-locking zippers and leash tether."),
+  c("sleepypod-atom", "Sleepypod", "Atom In-Cabin", "SLP-ATOM", true, 40, 24, 24, 1.0, "team_verified", 4.5, 120, "Smaller sibling of the Sleepypod Air. Good for small cats and toy breed dogs."),
+  c("elitefield-3door-sm", "EliteField", "3-Door Soft (Small)", "ELF-3D-S", true, inch(19), inch(13), inch(10), 1.0, "not_verified_yet", 8.0, 50, "Smaller EliteField model that fits under most airline seats."),
+  // ---------------------------------------------------------------------------
+  // New carriers added 2026-06-18 (round 2)
+  // ---------------------------------------------------------------------------
+  c("bergan-comfort-lg", "Bergan", "Comfort Carrier (Large)", "BRG-CC-L", true, inch(19), inch(10), inch(13), 1.4, "not_verified_yet", 9.1, 45, "Soft duffle-style carrier with fleece bed and pet-connect zipper. K9 of Mine best overall pick."),
+  c("petami-classic-sm", "PetAmi", "Classic Carrier (Small)", "PTM-CC-S", true, inch(17), inch(10.2), inch(11.2), 0.9, "not_verified_yet", 8.2, 35, "Hepper #1 overall pick. 15 color options. Structured soft-sided with sherpa bedding."),
+  c("gorilla-grip-sm", "Gorilla Grip", "TSA Carrier (Small)", "GRP-TSA-S", true, inch(17), inch(11), inch(11), 0.9, "not_verified_yet", 6.8, 35, "TSA-approved carrier with breathable mesh, washable fleece pad, and grip feet. PawsUp Express #1 pick."),
+  c("xzone-expandable-sm", "X-Zone", "Expandable Carrier (Small)", "XZN-EXP-S", true, inch(17), inch(11), inch(11), 0.9, "not_verified_yet", 6.8, 35, "Fold-out expandable panels give pets extra space. K9 of Mine best expandable pick."),
+  c("prodigen-soft-sm", "Prodigen", "Soft Carrier (Small)", "PRD-SS-S", true, inch(17.5), inch(10), inch(11), 0.8, "not_verified_yet", 6.4, 25, "Budget-friendly 3-door carrier with 4-sided mesh. K9 of Mine most affordable pick."),
 ];
 
 function c(
@@ -332,7 +555,14 @@ function c(
   maxPetWeightKg: number,
   priceUsd: number,
   description?: string,
+  amazonAsin?: string,
 ): Carrier {
+  // Use a direct Amazon.ca product URL when we have an ASIN, otherwise fall
+  // back to a search URL. The affiliate tag is injected at runtime via
+  // NEXT_PUBLIC_AFFILIATE_TAG.
+  const amazonUrl = amazonAsin
+    ? amzProduct(amazonAsin)
+    : affBase(`${brand} ${model} pet carrier`);
   return {
     id,
     brand,
@@ -348,9 +578,9 @@ function c(
     verifiedAt: verification === "team_verified" ? "2026-03-15" : null,
     travelerReports: verification === "traveler_reported" ? 2 : null,
     imageUrl: null,
-    affiliateUrl: affBase(`${brand} ${model} pet carrier`),
+    affiliateUrl: amazonUrl,
     affiliateTargets: {
-      amazon: affBase(`${brand} ${model} pet carrier`),
+      amazon: amazonUrl,
       chewy: `https://www.chewy.com/s?query=${encodeURIComponent(`${brand} ${model}`)}`,
     },
     priceUsd,

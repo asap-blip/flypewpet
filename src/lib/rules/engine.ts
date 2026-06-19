@@ -43,8 +43,8 @@ export interface LegResult {
   // The airline the traveler selected for the leg (booking/marketing airline).
   bookingAirlineId: string;
   bookingAirlineName: string;
-  origin: string;
-  destination: string;
+  origin?: string | null;
+  destination?: string | null;
   cabin: string;
   // True when the operating carrier replaced the booking airline for evaluation.
   operatingOverride: boolean;

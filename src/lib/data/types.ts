@@ -105,8 +105,8 @@ export interface Pet {
 
 export interface TripLegInput {
   airlineId: string;
-  origin: string;
-  destination: string;
+  origin?: string | null;
+  destination?: string | null;
   cabin: CabinType;
   flightNumber?: string | null;
   aircraftType?: string | null;

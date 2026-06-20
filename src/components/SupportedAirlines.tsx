@@ -46,14 +46,13 @@ export function SupportedAirlines({ coverage }: { coverage: AirlineCoverage[] })
         <h2 className="text-lg font-semibold text-slate-900">
           Supported airlines ({coverage.length})
         </h2>
-        <span className="text-xs text-slate-500">Economy cabin unless noted</span>
+        <span className="text-xs text-slate-500">All cabin classes shown</span>
       </div>
 
       <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        This is our full current coverage — not every airline, cabin, or aircraft. Verdicts depend on
-        the airline and cabin you choose, <strong>not the specific route</strong>; routes are not
-        individually validated. Cabins without their own rule fall back to the airline&apos;s economy
-        rule.
+        This is our full current coverage — not every airline, cabin, aircraft, or route. Verdicts depend on
+        the airline and cabin you choose. Cabins marked as fallback use the Economy rule with an
+        unverified cabin-specific note.
       </div>
 
       <div className="mt-4 overflow-x-auto">

@@ -27,8 +27,7 @@ export default async function CheckPage({
           Tell us the carrier, your pet, and each flight leg. We&apos;ll return a verdict per leg and overall.
         </p>
         <p className="mt-2 text-xs text-slate-500">
-          We currently cover {airlines.length} airlines (economy cabin). Other cabins fall back to the
-          economy rule, and routes are not individually validated.{" "}
+          We currently cover {airlines.length} airlines across Economy, Premium Economy, Business, and First Class. Some cabins are cloned from Economy with an unverified fallback note when no separate cabin rule is published. Routes are not individually validated.{" "}
           <Link href="/rules" className="text-brand-700 underline">See the supported-airlines list</Link>.
         </p>
       </div>

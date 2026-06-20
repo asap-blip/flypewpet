@@ -1,6 +1,7 @@
 import type {
   Airline,
   AirlineRule,
+  CabinType,
   Carrier,
   Merchant,
   MerchantProduct,
@@ -20,6 +21,67 @@ import type {
 
 const inch = (n: number) => Number((n * 2.54).toFixed(1));
 const lb = (n: number) => Number((n * 0.453592).toFixed(2));
+
+const CABIN_LABELS: Record<CabinType, string> = {
+  economy: "Economy",
+  premium_economy: "Premium Economy",
+  business: "Business",
+  first: "First Class",
+};
+
+function cabinSlug(cabin: CabinType): string {
+  return cabin.replace("_", "-");
+}
+
+function cabinBaseId(ruleId: string): string {
+  return ruleId
+    .replace(/-economy$/, "")
+    .replace(/-cargo-only$/, "")
+    .replace(/-no-pets$/, "");
+}
+
+function cloneEconomyRule(
+  base: AirlineRule,
+  cabin: CabinType,
+  patch: Partial<AirlineRule> & { unverified?: boolean } = {},
+): AirlineRule {
+  const unverified = patch.unverified ?? true;
+  const cabinLabel = CABIN_LABELS[cabin];
+  const baseNotes = base.notes ?? "Airline in-cabin pet rule.";
+  const fallbackNotes = unverified
+    ? `${baseNotes} Unverified cabin-specific fallback: no separate ${cabinLabel.toLowerCase()} in-cabin carrier rule found; copied from Economy as a conservative stand-in.`
+    : baseNotes;
+
+  return {
+    ...base,
+    id: patch.id ?? `${cabinBaseId(base.id)}-${cabinSlug(cabin)}`,
+    cabin,
+    aircraftType: patch.aircraftType === undefined ? base.aircraftType : patch.aircraftType,
+    maxLengthCm: patch.maxLengthCm === undefined ? base.maxLengthCm : patch.maxLengthCm,
+    maxWidthCm: patch.maxWidthCm === undefined ? base.maxWidthCm : patch.maxWidthCm,
+    maxHeightCm: patch.maxHeightCm === undefined ? base.maxHeightCm : patch.maxHeightCm,
+    maxCombinedWeightKg: patch.maxCombinedWeightKg === undefined ? base.maxCombinedWeightKg : patch.maxCombinedWeightKg,
+    softSidedRequirement: patch.softSidedRequirement === undefined ? base.softSidedRequirement : patch.softSidedRequirement,
+    aircraftVaries: patch.aircraftVaries === undefined ? base.aircraftVaries : patch.aircraftVaries,
+    notes: patch.notes === undefined ? fallbackNotes : patch.notes,
+    sourceUrl: patch.sourceUrl === undefined ? base.sourceUrl : patch.sourceUrl,
+    sourceLabel: patch.sourceLabel === undefined ? `${base.sourceLabel} (${cabinLabel} fallback)` : patch.sourceLabel,
+    sourceType: patch.sourceType === undefined ? base.sourceType : patch.sourceType,
+    lastVerifiedAt: patch.lastVerifiedAt === undefined ? base.lastVerifiedAt : patch.lastVerifiedAt,
+  };
+}
+
+function cloneEconomyRules(
+  baseRules: AirlineRule[],
+  skip: Record<string, CabinType[]> = {},
+): AirlineRule[] {
+  const cabins: CabinType[] = ["premium_economy", "business", "first"];
+  return baseRules.flatMap((rule) =>
+    cabins
+      .filter((cabin) => !skip[rule.id]?.includes(cabin))
+      .map((cabin) => cloneEconomyRule(rule, cabin)),
+  );
+}
 
 export const airlines: Airline[] = [
   { id: "air-canada", name: "Air Canada", iata: "AC", country: "CA" },
@@ -46,7 +108,7 @@ export const airlines: Airline[] = [
   { id: "ryanair", name: "Ryanair", iata: "FR", country: "IE" },
 ];
 
-export const airlineRules: AirlineRule[] = [
+const economyRules: AirlineRule[] = [
   {
     id: "air-canada-economy",
     airlineId: "air-canada",
@@ -199,26 +261,6 @@ export const airlineRules: AirlineRule[] = [
     sourceUrl:
       "https://www.lufthansa.com/de/en/travelling-with-animals",
     sourceLabel: "Lufthansa — Travelling with animals",
-    sourceType: "airline_official",
-    lastVerifiedAt: "2026-05-26",
-  },
-  // A business-cabin variant to demonstrate cabin-specific differences.
-  {
-    id: "lufthansa-business",
-    airlineId: "lufthansa",
-    cabin: "business",
-    aircraftType: null,
-    maxLengthCm: 55,
-    maxWidthCm: 40,
-    maxHeightCm: 23,
-    maxCombinedWeightKg: 8,
-    softSidedRequirement: "required",
-    aircraftVaries: true,
-    notes:
-      "Soft-sided carrier required. Same 55x40x23 cm / 8 kg limits as economy, but lie-flat seat footwells vary by aircraft.",
-    sourceUrl:
-      "https://www.lufthansa.com/de/en/travelling-with-animals",
-    sourceLabel: "Lufthansa — Travelling with animals (business)",
     sourceType: "airline_official",
     lastVerifiedAt: "2026-05-26",
   },
@@ -493,6 +535,232 @@ export const airlineRules: AirlineRule[] = [
     sourceType: "airline_official",
     lastVerifiedAt: "2026-06-18",
   },
+
+];
+
+const specificCabinRules: AirlineRule[] = [
+  // Lufthansa Business was already modeled before this cabin-class expansion.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "lufthansa-economy")!,
+    "business",
+    {
+      aircraftVaries: true,
+      notes:
+        "Soft-sided carrier required. Same 55x40x23 cm / 8 kg limits as Economy, but lie-flat seat footwells vary by aircraft.",
+      sourceLabel: "Lufthansa — Travelling with animals (business)",
+      unverified: false,
+    },
+  ),
+
+  // Air Canada: Premium Economy does not allow cabin pets; Business has aircraft-specific exceptions.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "air-canada-economy")!,
+    "premium_economy",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "Air Canada states pets in cabin are not permitted in Premium Economy because the seat layout does not allow safe stowage of a pet carrier.",
+      sourceLabel: "Air Canada — Travelling with pets (Premium Economy no cabin pets)",
+      unverified: false,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "air-canada-economy")!,
+    "business",
+    {
+      aircraftVaries: true,
+      notes:
+        "Same general soft-sided cabin rule as Economy, but Air Canada publishes aircraft-specific Business Class exceptions for A330/777/787 widebody aircraft. Provide aircraft or flight details for the most precise check.",
+      sourceLabel: "Air Canada — Travelling with pets (Business fallback)",
+      unverified: true,
+    },
+  ),
+  // Delta: Delta Premium, Business Class (international), and Delta One do not permit cabin pets; Delta First (domestic) does.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "delta-economy")!,
+    "premium_economy",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "Delta Premium (Domestic and International) allows 0 in-cabin pets and does not permit pets in cabin at any time.",
+      sourceLabel: "Delta — Pet travel overview (Premium Economy no cabin pets)",
+      unverified: false,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "delta-economy")!,
+    "business",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "Delta One and Business Class (International) allow 0 in-cabin pets and do not permit pets in cabin at any time.",
+      sourceLabel: "Delta — Pet travel overview (Business no cabin pets)",
+      unverified: false,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "delta-economy")!,
+    "first",
+    {
+      notes:
+        "Delta First (Domestic) permits cabin pets, but not in cabins with flat-bed seats. No separate First Class dimensions were found; use Delta's under-seat/aircraft guidance.",
+      sourceLabel: "Delta — Pet travel overview (First fallback)",
+      unverified: true,
+    },
+  ),
+
+  // American: premium cabins vary by aircraft; some premium cabins have no under-seat stowage.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "american-economy")!,
+    "premium_economy",
+    {
+      aircraftVaries: true,
+      notes:
+        "Premium cabin under-seat space varies by aircraft. American notes that some premium cabins/aircraft have no under-seat storage, so confirm aircraft-specific stowage before relying on this rule.",
+      sourceLabel: "American Airlines — Carry-on pet carrier guidelines (Premium Economy fallback)",
+      unverified: true,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "american-economy")!,
+    "business",
+    {
+      aircraftVaries: true,
+      notes:
+        "Business cabin under-seat space varies by aircraft. American notes that some premium cabins/aircraft have no under-seat storage, so confirm aircraft-specific stowage before relying on this rule.",
+      sourceLabel: "American Airlines — Carry-on pet carrier guidelines (Business fallback)",
+      unverified: true,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "american-economy")!,
+    "first",
+    {
+      aircraftVaries: true,
+      notes:
+        "First cabin under-seat space varies by aircraft. American notes that some premium cabins/aircraft have no under-seat storage, so confirm aircraft-specific stowage before relying on this rule.",
+      sourceLabel: "American Airlines — Carry-on pet carrier guidelines (First fallback)",
+      unverified: true,
+    },
+  ),
+
+  // Lufthansa: Premium Economy follows the same short/medium-haul cabin-pet limits; First has no separate allowance found.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "lufthansa-economy")!,
+    "premium_economy",
+    {
+      notes:
+        "Premium Economy follows the same 55x40x23 cm / 8 kg cabin-pet limits where Lufthansa accepts pets in cabin; availability varies by route and aircraft.",
+      sourceLabel: "Lufthansa — Travelling with animals (Premium Economy fallback)",
+      unverified: true,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "lufthansa-economy")!,
+    "first",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "No separate First Class in-cabin pet allowance found in the current Lufthansa policy; do not assume cabin pets are accepted in First.",
+      sourceLabel: "Lufthansa — Travelling with animals (First no separate allowance)",
+      unverified: true,
+    },
+  ),
+
+  // KLM: Premium Comfort is not allowed; Business is allowed within Europe; First has no separate allowance found.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "klm-economy")!,
+    "premium_economy",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "KLM does not allow pets in the cabin when travelling in Premium Comfort Class.",
+      sourceLabel: "KLM — Reservation for pets (Premium Comfort no cabin pets)",
+      unverified: false,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "klm-economy")!,
+    "business",
+    {
+      notes:
+        "KLM allows pets in cabin in Business Class within Europe only; Premium Comfort and intercontinental Business do not allow cabin pets.",
+      sourceLabel: "KLM — Reservation for pets (Business within Europe)",
+      unverified: false,
+    },
+  ),
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "klm-economy")!,
+    "first",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "No separate First Class in-cabin pet allowance found in the current KLM policy; do not assume cabin pets are accepted in First.",
+      sourceLabel: "KLM — Reservation for pets (First no separate allowance)",
+      unverified: true,
+    },
+  ),
+
+  // Air France: Premium Economy and Business follow the same cabin-pet limits; First/La Première has no separate allowance found.
+  cloneEconomyRule(
+    economyRules.find((r) => r.id === "air-france-economy")!,
+    "first",
+    {
+      maxLengthCm: null,
+      maxWidthCm: null,
+      maxHeightCm: null,
+      maxCombinedWeightKg: null,
+      softSidedRequirement: null,
+      aircraftVaries: false,
+      notes:
+        "No separate First Class/La Première in-cabin pet allowance found in the current Air France policy; do not assume cabin pets are accepted in First.",
+      sourceLabel: "Air France — Traveling with pets (First no separate allowance)",
+      unverified: true,
+    },
+  ),
+];
+
+export const airlineRules: AirlineRule[] = [
+  ...economyRules,
+  ...cloneEconomyRules(economyRules, {
+    "air-canada-economy": ["premium_economy", "business"],
+    "delta-economy": ["premium_economy", "business", "first"],
+    "american-economy": ["premium_economy", "business", "first"],
+    "lufthansa-economy": ["premium_economy", "business", "first"],
+    "klm-economy": ["premium_economy", "business", "first"],
+    "air-france-economy": ["first"],
+  }),
+  ...specificCabinRules,
 ];
 
 const AMZ_CA = "https://www.amazon.ca/dp/";

@@ -5,15 +5,16 @@ import { airlines, airlineRules } from "@/lib/data/seed";
 const map = buildCoverageMap(airlines, airlineRules);
 
 describe("coverage", () => {
-  it("reports economy-only airlines accurately", () => {
-    expect(map["united"].cabins).toEqual(["economy"]);
-    expect(coverageBadge(map["united"])).toBe("Economy only");
+  it("reports all cabin classes for cloned-cabin airlines", () => {
+    expect(map["united"].cabins).toEqual(["economy", "premium_economy", "business", "first"]);
+    expect(coverageBadge(map["united"]).includes("Premium economy")).toBe(true);
+    expect(coverageBadge(map["united"]).includes("Business")).toBe(true);
+    expect(coverageBadge(map["united"]).includes("First")).toBe(true);
   });
 
-  it("reports Lufthansa as economy + business", () => {
-    expect(map["lufthansa"].cabins).toContain("economy");
-    expect(map["lufthansa"].cabins).toContain("business");
-    expect(coverageBadge(map["lufthansa"])).toBe("Economy + Business");
+  it("reports Lufthansa across all cabin classes", () => {
+    expect(map["lufthansa"].cabins).toEqual(["economy", "premium_economy", "business", "first"]);
+    expect(coverageBadge(map["lufthansa"]).includes("Business")).toBe(true);
   });
 
   it("flags Delta as having no published dimensions", () => {
@@ -23,8 +24,9 @@ describe("coverage", () => {
 
   it("isCabinModeled reflects the modeled cabins", () => {
     expect(isCabinModeled(map["united"], "economy")).toBe(true);
-    expect(isCabinModeled(map["united"], "business")).toBe(false);
+    expect(isCabinModeled(map["united"], "business")).toBe(true);
     expect(isCabinModeled(map["lufthansa"], "business")).toBe(true);
+    expect(isCabinModeled(map["klm"], "premium_economy")).toBe(true);
   });
 
   it("returns 'Not supported' for an unknown airline", () => {
@@ -34,7 +36,7 @@ describe("coverage", () => {
   it("includes the Canadian carriers as economy with dimensions on file", () => {
     for (const id of ["porter", "westjet", "air-transat", "flair"]) {
       expect(map[id]).toBeDefined();
-      expect(map[id].cabins).toEqual(["economy"]);
+      expect(map[id].cabins).toEqual(["economy", "premium_economy", "business", "first"]);
       expect(map[id].hasDimensions).toBe(true);
     }
   });

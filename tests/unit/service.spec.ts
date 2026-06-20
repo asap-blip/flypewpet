@@ -81,31 +81,31 @@ describe("runCheck (static seed)", () => {
     expect(res.warnings.some((w) => w.code === "MULTI_AIRLINE_ITINERARY")).toBe(true);
   });
 
-  it("flags an unmodeled cabin and falls back to economy explicitly", async () => {
+  it("uses a modeled cabin rule instead of falling back to economy", async () => {
     const input: CheckInput = {
       carrierId: "sherpa-original-md",
       pet: { species: "cat", weightKg: 4 },
-      // United only models economy; business should fall back + be flagged.
       legs: [{ airlineId: "united", origin: "EWR", destination: "SFO", cabin: "business" }],
-    };
-    const res = await runCheck(input);
-    const leg = res.result.legs[0];
-    expect(leg.cabinModeled).toBe(false);
-    expect(leg.ruleSnapshot?.cabin).toBe("economy");
-    expect(leg.reasons.some((r) => r.code === "CABIN_NOT_MODELED")).toBe(true);
-  });
-
-  it("treats Lufthansa business as a modeled cabin (no fallback)", async () => {
-    const input: CheckInput = {
-      carrierId: "sherpa-original-md",
-      pet: { species: "cat", weightKg: 4 },
-      legs: [{ airlineId: "lufthansa", origin: "FRA", destination: "JFK", cabin: "business" }],
     };
     const res = await runCheck(input);
     const leg = res.result.legs[0];
     expect(leg.cabinModeled).toBe(true);
     expect(leg.ruleSnapshot?.cabin).toBe("business");
     expect(leg.reasons.some((r) => r.code === "CABIN_NOT_MODELED")).toBe(false);
+  });
+
+  it("applies Air Canada Premium Economy as a no-cabin-pet rule", async () => {
+    const input: CheckInput = {
+      carrierId: "sherpa-original-md",
+      pet: { species: "cat", weightKg: 4 },
+      legs: [{ airlineId: "air-canada", origin: "YYZ", destination: "YVR", cabin: "premium_economy" }],
+    };
+    const res = await runCheck(input);
+    const leg = res.result.legs[0];
+    expect(leg.cabinModeled).toBe(true);
+    expect(leg.ruleSnapshot?.cabin).toBe("premium_economy");
+    expect(leg.ruleSnapshot?.maxLengthCm).toBeNull();
+    expect(leg.reasons.some((r) => r.code === "INCOMPLETE_RULE_DATA")).toBe(true);
   });
 
   it("caps an unknown operating carrier at BORDERLINE with low confidence", async () => {

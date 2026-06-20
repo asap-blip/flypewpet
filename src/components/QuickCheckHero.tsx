@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Airline } from "@/lib/data/types";
+import type { Airline, CabinType } from "@/lib/data/types";
+import { ALL_CABINS, CABIN_LABELS } from "@/lib/coverage";
 
 export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
   const router = useRouter();
   const [airlineId, setAirlineId] = useState(airlines[0]?.id ?? "");
+  const [cabin, setCabin] = useState<CabinType>("economy");
   const [lengthCm, setLengthCm] = useState("");
   const [widthCm, setWidthCm] = useState("");
   const [heightCm, setHeightCm] = useState("");
@@ -43,7 +45,7 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
           airlineId,
           origin: "",
           destination: "",
-          cabin: "economy" as const,
+          cabin,
         },
       ],
     };
@@ -77,8 +79,8 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
         <span className="text-xs text-slate-400">Result in 60 seconds.</span>
       </div>
 
-      {/* 3-input row: airline + L + W + H — stacks on 375px, row on sm+ */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end">
+      {/* Inputs: airline + cabin + L + W + H — stacks on 375px, row on sm+ */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_auto_auto_auto_auto] sm:items-end">
         <div className="col-span-2 sm:col-span-1">
           <label className="mb-1 block text-xs font-medium text-slate-600">Airline</label>
           <select
@@ -88,6 +90,19 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
           >
             {airlines.map((a) => (
               <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-600">Cabin</label>
+          <select
+            value={cabin}
+            onChange={(e) => setCabin(e.target.value as CabinType)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+          >
+            {ALL_CABINS.map((c) => (
+              <option key={c} value={c}>{CABIN_LABELS[c]}</option>
             ))}
           </select>
         </div>

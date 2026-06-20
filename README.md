@@ -135,14 +135,15 @@ Reason codes are structured (e.g. `DIMENSION_HEIGHT_EXCEEDED`,
 
 ## Coverage (what's actually supported today)
 
-This is **not** full airline coverage. The seed currently includes **12 airlines /
-13 rules** (7 US, 4 Canada, 1 international), and `/rules` shows a visible
-**Supported airlines** list with each airline's source URL and last-verified date.
+This is **not** full airline coverage. The seed currently includes **22 airlines / 88 rules**
+(4 cabin classes for each airline; Lufthansa Business was already modeled and is retained), and
+`/rules` shows a visible **Supported airlines** list with each airline's source URL and
+last-verified date.
 
 | Airline | Cabin(s) modeled | Dimensions on file? |
 | --- | --- | --- |
-| Air Canada, United, American, Southwest, JetBlue, Alaska, Lufthansa, Porter, WestJet, Air Transat, Flair | Economy (Lufthansa also Business) | Yes |
-| Delta | Economy | **No** — incomplete by design; always returns BORDERLINE / low confidence |
+| All seeded airlines | Economy, Premium Economy, Business, First Class | Yes for most Economy/default rules; Premium/Business/First may be cloned from Economy with an unverified fallback note |
+| Delta | Economy, Premium Economy, Business, First Class | **No** — incomplete by design; always returns BORDERLINE / low confidence |
 
 Canadian carriers (Porter, WestJet, Air Transat, Flair) all require soft-sided
 carriers in cabin. Flair offers in-cabin pets on domestic Canada routes only.
@@ -151,14 +152,12 @@ Honest limitations, surfaced in the UI (landing, `/check`, `/rules`):
 
 - **Routes are not validated or route-specific.** A verdict depends only on the
   **airline + cabin** (and the operating carrier), never the city pair.
-- **Cabins other than economy** (premium economy, first, and business on every
-  airline except Lufthansa) **fall back to the airline's economy rule**. This is
-  **no longer silent**: the check form shows unmodeled cabins under a "Not
-  separately modeled (uses economy)" group with an inline notice, and each result
-  leg carries a "Cabin not modeled · used economy" badge plus a `CABIN_NOT_MODELED`
-  reason.
-- A **coverage badge** sits next to every airline selector ("Economy only",
-  "Economy + Business", "No published dimensions").
+- **Cabins other than economy** (premium economy, first, and business) are now
+  modeled for every seeded airline. Where a separate cabin rule is not published,
+  the rule is cloned from Economy and marked as an unverified fallback in the
+  rule notes/source label. Results still show the selected cabin on each leg.
+- A **coverage badge** sits next to every airline selector ("Economy + Premium
+  economy + Business + First").
 - All values are illustrative until independently re-verified.
 
 ### Multi-leg / layover itineraries

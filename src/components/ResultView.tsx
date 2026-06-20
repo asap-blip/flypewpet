@@ -25,7 +25,7 @@ export function ResultView({
   const multiLeg = result.legs.length > 1;
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section className="soft-panel p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="text-sm font-medium text-slate-500">{carrier.brand}</div>
@@ -60,7 +60,7 @@ export function ResultView({
           {warnings.map((w) => (
             <div
               key={w.code}
-              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+              className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
             >
               {w.message}
             </div>
@@ -70,7 +70,7 @@ export function ResultView({
 
       <div className="space-y-4">
         {result.legs.map((leg) => (
-          <section key={leg.legIndex} className="rounded-2xl border border-slate-200 bg-white p-5">
+          <section key={leg.legIndex} className="soft-panel p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="text-xs uppercase tracking-wide text-slate-400">Leg {leg.legIndex + 1}</div>

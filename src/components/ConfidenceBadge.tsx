@@ -25,7 +25,7 @@ export function ConfidenceReasons({
 }) {
   if (confidence === "high" || reasons.length === 0) return null;
   return (
-    <div className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+    <div className="mt-2 rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-600">
       <span className="font-medium text-slate-700">Why confidence is {confidence}: </span>
       <ul className="mt-1 list-disc space-y-0.5 pl-4">
         {reasons.map((r, i) => (

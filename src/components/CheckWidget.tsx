@@ -65,7 +65,7 @@ export function CheckWidget({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="soft-panel p-5">
       <div className="text-xs font-medium uppercase tracking-wide text-brand-700">Fits your flight?</div>
       <div className="mt-1 font-semibold text-slate-900">{carrierLabel}</div>
 
@@ -82,7 +82,7 @@ export function CheckWidget({
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <select
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="soft-input"
           value={airlineId}
           onChange={(e) => setAirlineId(e.target.value)}
         >
@@ -91,7 +91,7 @@ export function CheckWidget({
           ))}
         </select>
         <select
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="soft-input"
           value={cabin}
           onChange={(e) => setCabin(e.target.value as CabinType)}
         >
@@ -107,13 +107,13 @@ export function CheckWidget({
           )}
         </select>
         <input
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="soft-input"
           placeholder="From (e.g. JFK)"
           value={origin}
           onChange={(e) => setOrigin(e.target.value)}
         />
         <input
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="soft-input"
           placeholder="To (e.g. LAX)"
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
@@ -123,7 +123,7 @@ export function CheckWidget({
           <input
             type="number"
             step="0.1"
-            className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="soft-input w-24"
             value={weightKg}
             onChange={(e) => setWeightKg(Number(e.target.value))}
           />
@@ -131,7 +131,7 @@ export function CheckWidget({
       </div>
 
       {!isCabinModeled(coverage[airlineId], cabin) && (
-        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
           {CABIN_LABELS[cabin]} isn&apos;t separately modeled for this airline — we&apos;ll evaluate
           against its economy rule.
         </p>
@@ -141,13 +141,13 @@ export function CheckWidget({
         type="button"
         onClick={run}
         disabled={loading}
-        className="mt-4 w-full rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+        className="primary-cta mt-4 w-full px-4 py-2 font-medium disabled:opacity-60"
       >
         {loading ? "Checking…" : "Check compatibility"}
       </button>
 
       {verdict && (
-        <div className="mt-4 rounded-xl border border-slate-200 p-4">
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-white/90 p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-600">Result</span>
             <span className={`rounded-full px-3 py-1 text-sm font-semibold ring-1 ${verdictStyles[verdict].bg} ${verdictStyles[verdict].text} ${verdictStyles[verdict].ring}`}>

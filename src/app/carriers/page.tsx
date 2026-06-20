@@ -10,7 +10,8 @@ export default async function CarriersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Curated carrier catalog</h1>
+        <span className="section-eyebrow">🧳 Curated catalog</span>
+        <h1 className="mt-4 text-2xl font-semibold text-slate-900">Curated carrier catalog</h1>
         <p className="mt-1 text-slate-600">
           A small, hand-checked set of carriers we track and keep dimensions for — not every bag on
           the market. Find yours and check it against your itinerary, or scan a product code.

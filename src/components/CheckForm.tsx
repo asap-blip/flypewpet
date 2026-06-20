@@ -41,9 +41,8 @@ const SPECIES: { value: PetSpecies; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-const input =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
-const label = "block text-xs font-medium text-slate-600 mb-1";
+const input = "soft-input";
+const label = "soft-label";
 
 // Sentinel for "operated by an airline we don't model". Kept out of the airline
 // list so the user never picks a misleading modeled substitute.
@@ -211,7 +210,7 @@ export function CheckForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Carrier */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="soft-panel p-5">
         <h2 className="text-lg font-semibold text-slate-900">1. Your carrier</h2>
 
         {/* Toggle between catalog and manual */}
@@ -324,7 +323,7 @@ export function CheckForm({
                 <button
                   type="button"
                   onClick={lookupCode}
-                  className="shrink-0 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50"
+                  className="shrink-0 rounded-full border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Load
                 </button>
@@ -350,7 +349,7 @@ export function CheckForm({
       </section>
 
       {/* Pet */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="soft-panel p-5">
         <h2 className="text-lg font-semibold text-slate-900">2. Your pet</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -381,13 +380,13 @@ export function CheckForm({
       </section>
 
       {/* Itinerary */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="soft-panel p-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900">3. Your itinerary</h2>
           <button
             type="button"
             onClick={() => append({ airlineId: airlines[0]?.id ?? "", origin: "", destination: "", cabin: "economy" })}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
+            className="rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             + Add leg
           </button>
@@ -495,13 +494,13 @@ export function CheckForm({
 
                 {/* Explicit, pre-submit honesty notices */}
                 {!cabinModeledHere && leg && (
-                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
                     {CABIN_LABELS[leg.cabin]} isn&apos;t separately modeled for {airlineName(evalId)}. We&apos;ll
                     evaluate this leg against its <strong>economy</strong> rule, which may be more conservative.
                   </p>
                 )}
                 {leg && isUnknownOperating(leg) && (
-                  <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-800">
+                  <p className="mt-3 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
                     You marked this leg as operated by an airline we don&apos;t model yet. We&apos;ll show an
                     indicative result based on {airlineName(leg.marketedCarrierId || leg.airlineId)}, but we
                     <strong> can&apos;t confirm it</strong> against the policy that actually applies — this leg
@@ -513,7 +512,7 @@ export function CheckForm({
                   !isUnknownOperating(leg) &&
                   leg.operatingCarrierId &&
                   leg.operatingCarrierId !== leg.airlineId && (
-                    <p className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                    <p className="mt-2 rounded-2xl bg-sky-50 px-3 py-2 text-xs text-sky-800">
                       Rules will be evaluated against the operating carrier, {airlineName(leg.operatingCarrierId)}
                       {codeshareHere ? " — this looks like a codeshare/partner-operated flight." : "."}
                     </p>
@@ -525,32 +524,32 @@ export function CheckForm({
 
         {/* Trip-level pre-submit warnings */}
         {distinctEvalAirlines.size > 1 && (
-          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="mt-4 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
             Your itinerary uses more than one airline. Each leg is checked separately — acceptance on one
             airline does <strong>not</strong> guarantee acceptance on another.
           </p>
         )}
         {hasCodeshare && (
-          <p className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-800">
+          <p className="mt-2 rounded-2xl bg-sky-50 px-3 py-2 text-xs text-sky-800">
             A leg may be operated by a partner (codeshare). The operating carrier&apos;s pet policy is what
             applies at the gate — confirm directly with them.
           </p>
         )}
         {hasUnknownOperating && (
-          <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-800">
+          <p className="mt-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
             A leg is operated by an airline we don&apos;t model yet, so that leg is indicative only and
             can&apos;t be confirmed against the policy that actually applies.
           </p>
         )}
       </section>
 
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+      {error && <p className="rounded-2xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
       <div className="flex justify-end">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-brand-600 px-5 py-2.5 font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          className="primary-cta px-5 py-2.5 font-medium disabled:opacity-60"
         >
           {submitting ? "Checking…" : "Check compatibility"}
         </button>

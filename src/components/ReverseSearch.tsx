@@ -7,9 +7,8 @@ import { recommendCarriers, type CarrierRecommendation, type FitBand } from "@/l
 import { trackedClickUrl } from "@/lib/affiliate";
 import { PetMeasureHelp, RecommendationHelp } from "./Help";
 
-const input =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
-const label = "block text-xs font-medium text-slate-600 mb-1";
+const input = "soft-input";
+const label = "soft-label";
 
 const fitStyle: Record<FitBand, { label: string; cls: string }> = {
   good: { label: "Likely fits", cls: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
@@ -46,7 +45,7 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={search} className="rounded-2xl border border-slate-200 bg-white p-5">
+      <form onSubmit={search} className="soft-panel p-5">
         <h2 className="text-lg font-semibold text-slate-900">Tell us about your pet</h2>
         <p className="mt-1 text-sm text-slate-600">
           Weight is required. Measurements are optional but make the match much more accurate.
@@ -65,7 +64,7 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
             <input type="number" step="0.5" className={input} value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
           </div>
         </div>
-        <button type="submit" className="mt-4 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700">
+        <button type="submit" className="primary-cta mt-4 px-5 py-2.5 text-sm">
           Find matching carriers
         </button>
         <PetMeasureHelp />
@@ -73,7 +72,7 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
 
       {results && (
         <>
-          <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+          <div className="rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-500">
             These are likely-fit estimates from our curated catalog based on size and weight — not a
             guarantee. They don&apos;t account for your pet&apos;s exact shape or behaviour, and they
             don&apos;t yet check airline rules. Pick one and run a trip check next.
@@ -95,7 +94,7 @@ export function ReverseSearch({ carriers }: { carriers: Carrier[] }) {
           )}
 
           {excluded.length > 0 && (
-            <details className="rounded-xl border border-slate-200 bg-white p-4">
+            <details className="rounded-2xl border border-slate-200 bg-white/80 p-4">
               <summary className="cursor-pointer text-sm font-medium text-slate-600">
                 {excluded.length} carrier{excluded.length === 1 ? "" : "s"} we didn&apos;t recommend (likely too small or over weight)
               </summary>
@@ -118,7 +117,7 @@ function RecommendationCard({ rec }: { rec: CarrierRecommendation }) {
   const { carrier } = rec;
   const s = fitStyle[rec.fit];
   return (
-    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white/90 p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-sm font-medium text-slate-500">{carrier.brand}</div>
@@ -140,7 +139,7 @@ function RecommendationCard({ rec }: { rec: CarrierRecommendation }) {
       <div className="mt-4 flex items-center justify-between gap-2">
         <Link
           href={`/check?carrier=${carrier.id}`}
-          className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+          className="primary-cta px-3 py-1.5 text-sm"
         >
           Check my trip →
         </Link>

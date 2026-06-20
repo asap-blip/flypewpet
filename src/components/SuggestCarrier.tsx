@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 
-const input =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
+const input = "soft-input";
 
 // Lightweight demand capture: which carriers should we add to the curated catalog?
 export function SuggestCarrier() {
@@ -39,14 +38,14 @@ export function SuggestCarrier() {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="soft-panel p-5">
       <h2 className="text-lg font-semibold text-slate-900">Don&apos;t see your carrier?</h2>
       <p className="mt-1 text-sm text-slate-600">
         We track a curated set, not every bag. Tell us which carrier to add and we&apos;ll look into
         verifying its dimensions.
       </p>
       {status === "done" ? (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="mt-4 rounded-2xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Thanks — we&apos;ve logged your suggestion.
         </p>
       ) : (
@@ -68,7 +67,7 @@ export function SuggestCarrier() {
           <button
             type="submit"
             disabled={status === "saving" || !carrier.trim()}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="primary-cta px-4 py-2 text-sm disabled:opacity-60"
           >
             {status === "saving" ? "Submitting…" : "Suggest carrier"}
           </button>

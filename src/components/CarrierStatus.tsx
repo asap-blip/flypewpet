@@ -40,7 +40,7 @@ export function CarrierStatus({ status, evidence, carrier }: { status: Status; e
           {open && (
             <span
               role="tooltip"
-              className="absolute right-0 top-6 z-10 w-56 rounded-lg border border-slate-200 bg-white p-3 text-left text-xs font-normal leading-relaxed text-slate-600 shadow-lg"
+              className="absolute right-0 top-6 z-10 w-56 rounded-2xl border border-slate-200 bg-white p-3 text-left text-xs font-normal leading-relaxed text-slate-600 shadow-lg"
             >
               <span className="mb-1 block font-semibold text-slate-800">{config.label}</span>
               {config.description}

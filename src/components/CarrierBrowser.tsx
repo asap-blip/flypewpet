@@ -37,14 +37,14 @@ export function CarrierBrowser({ carriers }: { carriers: Carrier[] }) {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <input
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+          className="soft-input"
           placeholder="Search by brand, model, or SKU…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <div className="flex gap-2">
           <input
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
             placeholder="Scan or enter a product code (e.g. FPP-SLP-AIR)"
             value={code}
             onChange={(e) => setCode(e.target.value)}
@@ -53,7 +53,7 @@ export function CarrierBrowser({ carriers }: { carriers: Carrier[] }) {
           <button
             type="button"
             onClick={lookup}
-            className="shrink-0 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            className="shrink-0 rounded-full border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             Load
           </button>
@@ -66,7 +66,7 @@ export function CarrierBrowser({ carriers }: { carriers: Carrier[] }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((c) => {
           return (
-            <div key={c.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5">
+            <div key={c.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white/90 p-5">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="text-sm font-medium text-slate-500">{c.brand}</div>
@@ -81,7 +81,7 @@ export function CarrierBrowser({ carriers }: { carriers: Carrier[] }) {
               <div className="mt-4 flex items-center justify-between gap-2 pt-2">
                 <Link
                   href={`/check?carrier=${c.id}`}
-                  className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+                  className="primary-cta px-3 py-1.5 text-sm"
                 >
                   Check my trip
                 </Link>

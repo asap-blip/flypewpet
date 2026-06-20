@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 
-const input =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100";
-const label = "block text-xs font-medium text-slate-600 mb-1";
+const input = "soft-input";
+const label = "soft-label";
 
 export function SaveCheckForm({
   shareToken,
@@ -58,14 +57,14 @@ export function SaveCheckForm({
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="soft-panel p-5">
       <h2 className="text-lg font-semibold text-slate-900">Save this result</h2>
       <p className="mt-1 text-sm text-slate-600">
         Get a link to this result emailed to you so you can find it later.
       </p>
 
       {done ? (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="mt-4 rounded-2xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Saved! Check your email for the result link.
         </p>
       ) : (
@@ -82,12 +81,12 @@ export function SaveCheckForm({
             />
           </div>
 
-          {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
+          {error && <p className="rounded-2xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
 
           <button
             type="submit"
             disabled={pending || !email}
-            className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="primary-cta px-5 py-2.5 text-sm disabled:opacity-60"
           >
             {pending ? "Saving…" : "Email me this result"}
           </button>

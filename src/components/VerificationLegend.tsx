@@ -9,7 +9,7 @@ export function VerificationLegend() {
         {PRIMARY_STATUSES.map((status) => {
           const c = CARRIER_STATUS[status];
           return (
-            <div key={status} className="rounded-lg border border-slate-200 bg-white p-3">
+            <div key={status} className="rounded-2xl border border-slate-200 bg-white/90 p-3">
               <span
                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${STATUS_TONE_CLASS[c.tone]}`}
               >

@@ -22,7 +22,8 @@ export default async function CheckPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Check your trip</h1>
+        <span className="section-eyebrow">✈ Trip check</span>
+        <h1 className="mt-4 text-2xl font-semibold text-slate-900">Check your trip</h1>
         <p className="mt-1 text-slate-600">
           Tell us the carrier, your pet, and each flight leg. We&apos;ll return a verdict per leg and overall.
         </p>

@@ -6,8 +6,8 @@ import { PetMeasureVisual } from "./PetMeasureVisual";
 // and practical — this is in-flow guidance, not blog posts.
 export function HelpPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <details className="group mt-3 rounded-lg border border-slate-200 bg-slate-50/70">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm font-medium text-brand-700 hover:bg-slate-100 rounded-lg">
+    <details className="group mt-3 rounded-2xl border border-slate-200 bg-slate-50/70">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl px-3 py-2 text-sm font-medium text-brand-700 hover:bg-slate-100">
         <span className="text-slate-400 transition-transform group-open:rotate-90">›</span>
         {title}
       </summary>

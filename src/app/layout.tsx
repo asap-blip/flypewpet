@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "flypewpet — Will your pet carrier fly?",
+  title: "flypewpet — Pet carrier flight compatibility",
   description:
     "Check whether a specific pet carrier meets the in-cabin rules for your exact flight itinerary — leg by leg, with transparent reasoning.",
 };
@@ -16,30 +16,32 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <header className="border-b border-slate-200 bg-white">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <header className="sticky top-0 z-50 border-b border-stone-200/70 bg-white/80 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-white">✈</span>
-              flypewpet
+              <span className="paw-mark h-8 w-8 text-sm">🐾</span>
+              <span>flypewpet</span>
             </Link>
-            <nav className="flex items-center gap-4 text-sm text-slate-600">
+            <nav className="hidden items-center gap-5 text-sm text-slate-600 md:flex">
               <Link href="/find" className="hover:text-slate-900">Find a carrier</Link>
               <Link href="/carriers" className="hover:text-slate-900">Catalog</Link>
               <Link href="/rules" className="hover:text-slate-900">Rules &amp; sources</Link>
-              <Link href="/check" className="hover:text-slate-900">Check a trip</Link>
               <Link href="/for-merchants" className="hover:text-slate-900">For merchants</Link>
-              <Link
-                href="/check"
-                className="rounded-lg bg-brand-600 px-3 py-1.5 font-medium text-white hover:bg-brand-700"
-              >
+              <Link href="/check" className="ghost-cta">
+                Check a trip
+              </Link>
+              <Link href="/check" className="primary-cta px-4 py-2 text-sm">
                 Start check
               </Link>
             </nav>
+            <Link href="/check" className="primary-cta px-4 py-2 text-sm md:hidden">
+              Check
+            </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
-        <footer className="border-t border-slate-200 bg-white">
-          <div className="mx-auto max-w-5xl space-y-2 px-4 py-6 text-xs text-slate-500">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:py-10">{children}</main>
+        <footer className="border-t border-stone-200/70 bg-white/70">
+          <div className="mx-auto max-w-6xl space-y-2 px-4 py-6 text-xs text-slate-500">
             <p>
               flypewpet is a compatibility checker, not a guarantee. Airlines make the
               final acceptance decision at the gate. Always confirm current policy with

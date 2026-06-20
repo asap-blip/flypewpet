@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
 import { useState } from "react";
 import type { Airline, CabinType } from "@/lib/data/types";
 import { ALL_CABINS, CABIN_LABELS } from "@/lib/coverage";
@@ -16,7 +17,7 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const l = Number(lengthCm);
     const w = Number(widthCm);
@@ -70,23 +71,24 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <form onSubmit={handleSubmit} className="soft-panel p-4 sm:p-5">
       {/* Header */}
       <div className="mb-4 flex items-center gap-2">
-        <span className="inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+        <span className="section-eyebrow">
+          <span aria-hidden="true">✈</span>
           Quick check
         </span>
-        <span className="text-xs text-slate-400">Result in 60 seconds.</span>
+        <span className="text-xs text-slate-400">Result in about 60 seconds.</span>
       </div>
 
       {/* Inputs: airline + cabin + L + W + H — stacks on 375px, row on sm+ */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_auto_auto_auto_auto] sm:items-end">
         <div className="col-span-2 sm:col-span-1">
-          <label className="mb-1 block text-xs font-medium text-slate-600">Airline</label>
+          <label className="soft-label">Airline</label>
           <select
             value={airlineId}
             onChange={(e) => setAirlineId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           >
             {airlines.map((a) => (
               <option key={a.id} value={a.id}>{a.name}</option>
@@ -95,11 +97,11 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Cabin</label>
+          <label className="soft-label">Cabin</label>
           <select
             value={cabin}
             onChange={(e) => setCabin(e.target.value as CabinType)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           >
             {ALL_CABINS.map((c) => (
               <option key={c} value={c}>{CABIN_LABELS[c]}</option>
@@ -108,7 +110,7 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">L (cm)</label>
+          <label className="soft-label">L (cm)</label>
           <input
             type="number"
             min="1"
@@ -116,11 +118,11 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
             placeholder="45"
             value={lengthCm}
             onChange={(e) => setLengthCm(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">W (cm)</label>
+          <label className="soft-label">W (cm)</label>
           <input
             type="number"
             min="1"
@@ -128,11 +130,11 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
             placeholder="30"
             value={widthCm}
             onChange={(e) => setWidthCm(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">H (cm)</label>
+          <label className="soft-label">H (cm)</label>
           <input
             type="number"
             min="1"
@@ -140,7 +142,7 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
             placeholder="25"
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           />
         </div>
       </div>
@@ -148,7 +150,7 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
       {/* Pet weight + CTA row */}
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="w-full sm:w-40">
-          <label className="mb-1 block text-xs font-medium text-slate-600">
+          <label className="soft-label">
             Pet weight (kg) <span className="font-normal text-slate-400">optional</span>
           </label>
           <input
@@ -159,13 +161,13 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
             placeholder="5"
             value={petWeightKg}
             onChange={(e) => setPetWeightKg(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="soft-input"
           />
         </div>
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60 sm:w-auto sm:px-8"
+          className="primary-cta w-full px-6 py-2.5 text-sm disabled:opacity-60 sm:w-auto sm:px-8"
         >
           {submitting ? "Checking…" : "Check now"}
         </button>
@@ -174,11 +176,11 @@ export function QuickCheckHero({ airlines }: { airlines: Airline[] }) {
       {/* Hint */}
       <p className="mt-2 text-xs text-slate-400">
         Carrier assumed soft-sided. For hard-sided or multi-leg trips, use the{" "}
-        <a href="/check" className="text-brand-700 underline">full check</a>.
+        <a href="/check" className="font-medium text-brand-700 underline">full check</a>.
       </p>
 
       {error && (
-        <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>
+        <p className="mt-3 rounded-2xl bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>
       )}
     </form>
   );

@@ -75,7 +75,7 @@ export default async function ForMerchantsPage() {
       </section>
 
       {/* Live demo */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section className="soft-panel p-6">
         <h2 className="text-xl font-semibold text-slate-900">See it in action</h2>
         <p className="mt-1 text-sm text-slate-600">
           This is the same widget your customers would see on your product page.
@@ -104,10 +104,10 @@ export default async function ForMerchantsPage() {
                 tier.featured
                   ? "border-brand-500 ring-2 ring-brand-100"
                   : "border-slate-200"
-              } bg-white`}
+              } bg-white/90`}
             >
               {tier.featured && (
-                <span className="mb-3 inline-block self-start rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
+                <span className="mb-3 inline-block self-start rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
                   Most popular
                 </span>
               )}
@@ -129,7 +129,7 @@ export default async function ForMerchantsPage() {
               </ul>
               <button
                 type="button"
-                className={`mt-6 w-full rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                className={`mt-6 w-full rounded-full px-4 py-2.5 text-sm font-medium transition ${
                   tier.featured
                     ? "bg-brand-600 text-white hover:bg-brand-700"
                     : "border border-slate-300 text-slate-700 hover:bg-slate-50"
@@ -145,12 +145,12 @@ export default async function ForMerchantsPage() {
       <MerchantSignupForm />
 
       {/* Embed snippet */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section className="soft-panel p-6">
         <h2 className="text-xl font-semibold text-slate-900">Embed snippet</h2>
         <p className="mt-1 text-sm text-slate-600">
           Paste this into your product page HTML. Replace <code className="rounded bg-slate-100 px-1 text-xs">CARRIER_ID</code> with your carrier&apos;s ID.
         </p>
-        <div className="mt-4 rounded-xl bg-slate-900 p-4">
+        <div className="mt-4 rounded-2xl bg-slate-900 p-4">
           <pre className="overflow-x-auto text-sm text-slate-100">
             <code>{embedSnippet}</code>
           </pre>
@@ -159,7 +159,7 @@ export default async function ForMerchantsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section className="soft-panel p-6">
         <h2 className="text-xl font-semibold text-slate-900">FAQ</h2>
         <dl className="mt-4 space-y-4">
           {[
@@ -189,7 +189,7 @@ export default async function ForMerchantsPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="rounded-2xl bg-slate-900 p-8 text-center text-slate-100">
+      <section className="rounded-[2rem] bg-slate-900 p-8 text-center text-slate-100">
         <h2 className="text-2xl font-semibold">Ready to reduce returns and boost conversions?</h2>
         <p className="mx-auto mt-2 max-w-lg text-sm text-slate-300">
           Join pet retailers who use flypewpet to help customers buy with confidence.
@@ -197,13 +197,13 @@ export default async function ForMerchantsPage() {
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="#"
-            className="rounded-lg bg-white px-6 py-2.5 font-medium text-slate-900 hover:bg-slate-100"
+            className="rounded-full bg-white px-6 py-2.5 font-medium text-slate-900 hover:bg-slate-100"
           >
             Start free
           </Link>
           <Link
             href="/merchant/petgearco"
-            className="rounded-lg border border-slate-600 px-6 py-2.5 font-medium text-slate-300 hover:border-slate-400"
+            className="rounded-full border border-slate-600 px-6 py-2.5 font-medium text-slate-300 hover:border-slate-400"
           >
             View full demo
           </Link>

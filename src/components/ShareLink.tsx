@@ -16,7 +16,7 @@ export function ShareLink() {
           setCopied(false);
         }
       }}
-      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
     >
       {copied ? "Link copied" : "Copy share link"}
     </button>

@@ -43,7 +43,7 @@ export default async function MerchantDemoPage({
 
       {featured?.carrier && (
         <section className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div className="soft-panel p-6">
             <div className="text-sm font-medium text-slate-500">{featured.carrier.brand}</div>
             <h2 className="text-xl font-semibold text-slate-900">{featured.carrier.model}</h2>
             <p className="mt-2 text-sm text-slate-600">{featured.carrier.description}</p>
@@ -69,7 +69,7 @@ export default async function MerchantDemoPage({
           {withCarriers
             .filter((x) => x.carrier && x.carrier.id !== featured?.carrier?.id)
             .map(({ product, carrier }) => (
-              <div key={product.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div key={product.id} className="rounded-2xl border border-slate-200 bg-white/90 p-5">
                 <div className="text-sm font-medium text-slate-500">{carrier!.brand}</div>
                 <div className="font-semibold text-slate-900">{carrier!.model}</div>
                 <div className="mt-1 text-xs text-slate-500">
@@ -77,7 +77,7 @@ export default async function MerchantDemoPage({
                 </div>
                 <Link
                   href={`/check?carrier=${carrier!.id}`}
-                  className="mt-3 inline-block rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
+                  className="mt-3 inline-block rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
                 >
                   Check my trip
                 </Link>

@@ -57,6 +57,8 @@ export default function RootLayout({
             </p>
             <p className="pt-2">
               <a href="/admin/reports" className="text-slate-400 hover:text-slate-600 transition-colors">Admin</a>
+              <span className="text-slate-300">·</span>
+              <a href="/admin/refresh-status" className="text-slate-400 hover:text-slate-600 transition-colors">Freshness</a>
             </p>
           </div>
         </footer>

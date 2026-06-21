@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import type { Airline, Carrier, CabinType, PetSpecies } from "@/lib/data/types";
+import type { Airline, AirlineRule, Carrier, CabinType, PetSpecies } from "@/lib/data/types";
 import {
   ALL_CABINS,
   CABIN_LABELS,
@@ -48,6 +48,7 @@ const UNKNOWN_OPERATING = "__unknown__";
 export function CheckForm({
   airlines,
   carriers,
+  rules,
   coverage,
   initialCarrierId,
   initialAirlineId,
@@ -58,6 +59,7 @@ export function CheckForm({
 }: {
   airlines: Airline[];
   carriers: Carrier[];
+  rules: AirlineRule[];
   coverage: CoverageMap;
   initialCarrierId?: string;
   initialAirlineId?: string;
@@ -154,6 +156,26 @@ export function CheckForm({
     } catch {
       setCodeMsg("Lookup failed. Try the dropdown instead.");
     }
+  }
+
+  // --- Freshness check for airline rules ---
+  function freshnessStatus(airlineId: string): { stale: boolean; daysSince: number | null; status: string } {
+    const airlineRules = rules.filter((r) => r.airlineId === airlineId);
+    if (airlineRules.length === 0) return { stale: false, daysSince: null, status: "no_rules" };
+
+    const dates = airlineRules
+      .map((r) => r.lastVerifiedAt)
+      .filter((d): d is string => d !== null && d !== undefined)
+      .sort()
+      .reverse();
+    const latest = dates[0] ?? null;
+
+    if (!latest) return { stale: true, daysSince: null, status: "never_verified" };
+
+    const daysSince = Math.floor((Date.now() - new Date(latest).getTime()) / (1000 * 60 * 60 * 24));
+    if (daysSince > 180) return { stale: true, daysSince, status: "overdue" };
+    if (daysSince > 120) return { stale: false, daysSince, status: "aging" };
+    return { stale: false, daysSince, status: "current" };
   }
 
   async function onSubmit(values: FormValues) {
@@ -621,6 +643,31 @@ export function CheckForm({
                       {codeshareHere ? ", which looks like a codeshare or partner-operated flight." : "."}
                     </p>
                   )}
+                {/* Freshness warning */}
+                {(() => {
+                  const evalId = leg ? evalAirlineId(leg) : "";
+                  const fs = freshnessStatus(evalId);
+                  const airlineLabel = airlineName(evalId);
+                  if (fs.stale && fs.status === "overdue") {
+                    return (
+                      <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200">
+                        ⚠️ <strong>{airlineLabel}&apos;s rules</strong> haven&apos;t been verified in{' '}
+                        {fs.daysSince != null ? `${fs.daysSince} days` : "over 6 months"}. {' '}
+                        Please double-check the official airline website before your flight.
+                      </p>
+                    );
+                  }
+                  if (fs.stale && fs.status === "never_verified") {
+                    return (
+                      <p className="mt-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200">
+                        ⚠️ <strong>{airlineLabel}&apos;s rules</strong> haven&apos;t been verified yet. {' '}
+                        The compatibility check is based on published data that may be outdated.
+                        Please confirm with the airline directly before traveling.
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             );
           })}

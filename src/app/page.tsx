@@ -233,15 +233,17 @@ export default async function HomePage() {
 
         <div className="mt-6 grid gap-3 lg:grid-cols-2">
           {faqs.map((item) => (
-            <details key={item.q} className="group rounded-3xl border border-brand-200/80 bg-white/82 p-5">
-              <summary className="cursor-pointer list-none text-sm font-extrabold text-navy">
-                {item.q}
-                <span className="ml-2 text-caramel transition group-open:rotate-90" aria-hidden="true">
-                  ›
-                </span>
-              </summary>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{item.a}</p>
-            </details>
+            <div key={item.q}>
+              <details className="group rounded-3xl border border-brand-200/80 bg-white/82 p-5">
+                <summary className="cursor-pointer list-none text-sm font-extrabold text-navy">
+                  {item.q}
+                  <span className="ml-2 text-caramel transition group-open:rotate-90" aria-hidden="true">
+                    ›
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{item.a}</p>
+              </details>
+            </div>
           ))}
         </div>
       </section>

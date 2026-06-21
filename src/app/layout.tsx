@@ -35,6 +35,7 @@ export default function RootLayout({
               <Link href="/find" className="hidden md:inline-flex nav-link">Find</Link>
               <Link href="/carriers" className="hidden md:inline-flex nav-link">Carriers</Link>
               <Link href="/rules" className="hidden md:inline-flex nav-link">Rules</Link>
+              <Link href="/merchant/signup" className="hidden md:inline-flex nav-link">Merchant</Link>
               <Link href="/check" className="inline-flex md:hidden primary-cta px-3 py-1.5 text-xs">
                 <span className="cta-icon" aria-hidden="true">⌕</span>
                 Check

@@ -63,22 +63,34 @@ export function CarrierCard({
   const [fitStatus, setFitStatus] = useState<string>("");
   const [airline, setAirline] = useState("");
   const [notes, setNotes] = useState("");
+  const [pending, setPending] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [subError, setSubError] = useState<string | null>(null);
 
   const needsHelp = carrier.verification !== "team_verified" && carrier.verification !== "traveler_reported";
 
-  function handleReport(e: React.FormEvent) {
+  async function handleReport(e: React.FormEvent) {
     e.preventDefault();
-    // No backend yet — log to console for now
-    console.log("Carrier report:", {
-      carrier: carrier.id,
-      airline,
-      fitStatus,
-      notes,
-    });
-    setShowModal(false);
-    setFitStatus("");
-    setAirline("");
-    setNotes("");
+    setPending(true);
+    setSubError(null);
+    try {
+      const res = await fetch("/api/carrier-reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carrierId: carrier.id,
+          airlineId: airline || null,
+          fitStatus: fitStatus.toLowerCase().replace(/ /g, "_"),
+          notes: notes || null,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+      setSubmitted(true);
+    } catch {
+      setSubError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -156,68 +168,92 @@ export function CarrierCard({
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-extrabold text-navy">Help us verify this carrier</h3>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-xs text-slate-500 mb-4">
-              Have you flown with the <strong>{carrier.brand} {carrier.model}</strong>? Let us know how it went.
-            </p>
-            <form onSubmit={handleReport} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Which airline?</label>
-                <input
-                  type="text"
-                  value={airline}
-                  onChange={(e) => setAirline(e.target.value)}
-                  placeholder="e.g. Air Canada, United"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Did it fit under the seat?</label>
-                <div className="flex gap-2">
-                  {["Yes", "No", "It was tight"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setFitStatus(option)}
-                      className={`flex-1 rounded-xl border px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
-                        fitStatus === option
-                          ? "border-brand-400 bg-brand-50 text-caramel"
-                          : "border-slate-200 text-slate-600 hover:border-slate-300"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+            {submitted ? (
+              <>
+                <div className="text-center py-4">
+                  <div className="text-3xl mb-2">✓</div>
+                  <h3 className="text-base font-extrabold text-navy">Thanks for reporting!</h3>
+                  <p className="mt-2 text-xs text-slate-500">
+                    We&apos;ll review your report and update the carrier status.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => { setShowModal(false); setSubmitted(false); }}
+                    className="primary-cta mt-4 px-4 py-2 text-sm"
+                  >
+                    Close
+                  </button>
                 </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Any notes?</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Model number, aircraft type, how it fit…"
-                  rows={3}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={!airline || !fitStatus}
-                className="primary-cta w-full min-h-10 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Submit report
-              </button>
-            </form>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-extrabold text-navy">Help us verify this carrier</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mb-4">
+                  Have you flown with the <strong>{carrier.brand} {carrier.model}</strong>? Let us know how it went.
+                </p>
+                <form onSubmit={handleReport} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Which airline?</label>
+                    <input
+                      type="text"
+                      value={airline}
+                      onChange={(e) => setAirline(e.target.value)}
+                      placeholder="e.g. Air Canada, United"
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Did it fit under the seat?</label>
+                    <div className="flex gap-2">
+                      {["Yes", "No", "It was tight"].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setFitStatus(option)}
+                          className={`flex-1 rounded-xl border px-3 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                            fitStatus === option
+                              ? "border-brand-400 bg-brand-50 text-caramel"
+                              : "border-slate-200 text-slate-600 hover:border-slate-300"
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Any notes?</label>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Model number, aircraft type, how it fit…"
+                      rows={3}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
+                    />
+                  </div>
+                  {subError && (
+                    <p className="text-xs text-rose-600">{subError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={!airline || !fitStatus || pending}
+                    className="primary-cta w-full min-h-10 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {pending ? "Submitting…" : "Submit report"}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

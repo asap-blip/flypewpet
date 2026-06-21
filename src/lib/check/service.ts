@@ -222,7 +222,7 @@ async function computeAlternatives(
 
 export async function runCheck(
   input: CheckInput,
-  opts: { persist?: boolean } = {},
+  opts: { persist?: boolean; merchantId?: string } = {},
 ): Promise<CheckResponse> {
   const repo = getRepository();
   const carrier = input.carrierId
@@ -272,6 +272,7 @@ export async function runCheck(
         overall: result.overall,
         confidence: result.confidence,
         result,
+        merchantId: opts.merchantId,
       });
     } catch (err) {
       console.error("[flypewpet] failed to persist check", err);

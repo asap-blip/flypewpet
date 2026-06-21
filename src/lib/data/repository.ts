@@ -38,6 +38,15 @@ export interface CheckRecord {
   overall: Verdict;
   confidence: string;
   result: TripResult;
+  merchantId?: string;
+}
+
+export interface MerchantRecord {
+  id: string;
+  name: string;
+  email: string;
+  slug: string;
+  apiKey?: string | null;
 }
 
 export interface ClickRecord {
@@ -409,16 +418,20 @@ class SupabaseRepository implements Repository {
   async recordCheck(record: CheckRecord): Promise<string> {
     const sb = getServiceSupabase() ?? getSupabase();
     if (!sb) return `nodb_${Date.now()}`;
+    const insert: Record<string, unknown> = {
+      carrier_id: record.carrierId,
+      pet_species: record.petSpecies,
+      pet_weight_kg: record.petWeightKg,
+      overall_status: record.overall,
+      confidence: record.confidence,
+      result: record.result,
+    };
+    if (record.merchantId) {
+      insert.merchant_id = record.merchantId;
+    }
     const { data, error } = await sb
       .from("compatibility_checks")
-      .insert({
-        carrier_id: record.carrierId,
-        pet_species: record.petSpecies,
-        pet_weight_kg: record.petWeightKg,
-        overall_status: record.overall,
-        confidence: record.confidence,
-        result: record.result,
-      })
+      .insert(insert)
       .select("id")
       .single();
     if (error) throw error;

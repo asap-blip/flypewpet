@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServiceSupabase } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase/client";
 import { sendAlert } from "@/lib/notifications";
 
 export async function POST(req: Request) {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "fitStatus must be 'fits', 'tight', or 'does_not_fit'" }, { status: 400 });
     }
 
-    const supabase = getServiceSupabase();
+    const supabase = getSupabase();
     if (!supabase) {
       return NextResponse.json({ error: "Database not configured" }, { status: 503 });
     }

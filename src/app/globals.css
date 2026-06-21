@@ -208,10 +208,11 @@ body {
 /* Animated scan line for the trip check form */
 @keyframes scan-line {
   0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
   100% { transform: translateX(200%); }
 }
 .animate-scan-line {
-  animation: scan-line 3s ease-in-out infinite;
+  animation: scan-line 4s ease-in-out infinite;
 }
 
 /* Pause animation on user interaction */

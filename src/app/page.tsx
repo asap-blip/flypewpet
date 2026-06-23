@@ -151,7 +151,7 @@ export default async function HomePage() {
           <p className="mt-3 text-sm leading-7 text-slate-600">
             Give us the trip details. We handle the rule comparison and explain the result in plain language.
           </p>
-          <Link href="/result?demo=1" className="primary-cta mt-5 px-4 py-2 text-sm">
+          <Link href="/check?carrier=sherpa-original-md&airline=united&cabin=economy&petWeight=5&petLength=40&petHeight=20" className="primary-cta mt-5 px-4 py-2 text-sm">
             <span aria-hidden="true">⌕</span>
             See an example result
           </Link>

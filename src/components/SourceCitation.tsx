@@ -4,7 +4,7 @@ import { freshness, freshnessStyles } from "@/lib/freshness";
 export function FreshnessBadge({ lastVerifiedAt }: { lastVerifiedAt?: string | null }) {
   const f = freshness(lastVerifiedAt);
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${freshnessStyles[f.band]}`}>
+    <span className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium ${freshnessStyles[f.band]}`}>
       {f.label}
     </span>
   );
